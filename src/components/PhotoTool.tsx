@@ -25,6 +25,7 @@ const TITLES: Record<PhotoPurpose, string> = {
 export function PhotoTool({ purpose, onClose, onDone }: Props) {
   const isCutoutPurpose = purpose === 'portrait' || purpose === 'basicPortrait' || purpose === 'hitzone' || purpose === 'emblem'
   const [src, setSrc] = useState<HTMLImageElement | null>(null)
+  const [srcUrl, setSrcUrl] = useState<string | null>(null)
   const [method, setMethod] = useState<Method>(isCutoutPurpose ? (aiAvailable() ? 'ai' : 'key') : 'none')
   const [model, setModel] = useState<ModelKey>('isnet')
   const [raw, setRaw] = useState<ImageData | null>(null) // cutout before refinement
@@ -41,6 +42,11 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const refined = useRef<ImageData | null>(null)
 
+  useEffect(() => () => {
+    if (srcUrl) URL.revokeObjectURL(srcUrl)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const pickFile = async (f: File | undefined | null) => {
     if (!f) return
     setError(null)
@@ -48,6 +54,10 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
     try {
       const blob = await normalizeUpload(f, 2400)
       const img = await blobToImage(blob)
+      setSrcUrl((old) => {
+        if (old) URL.revokeObjectURL(old)
+        return URL.createObjectURL(blob)
+      })
       setSrc(img)
     } catch (err) {
       setError('Could not read that image: ' + (err as Error).message)
@@ -212,9 +222,9 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
                     </button>
                   </div>
                   {method === 'ai' && (
-                    <select value={model} onChange={(e) => setModel(e.target.value as ModelKey)} style={{ width: 200 }}>
-                      <option value="isnet">Standard model (45–90 MB)</option>
-                      <option value="birefnet">High quality (115 MB, needs GPU)</option>
+                    <select value={model} onChange={(e) => setModel(e.target.value as ModelKey)} style={{ width: 'auto', minWidth: 190 }}>
+                      <option value="isnet">Standard (45–90 MB)</option>
+                      <option value="birefnet">High quality (115 MB, GPU)</option>
                     </select>
                   )}
                 </div>
@@ -225,7 +235,7 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
                     Original
                   </div>
                   <div className="checker" style={{ height: 300 }}>
-                    <img src={src.src} alt="" />
+                    {srcUrl && <img src={srcUrl} alt="" />}
                   </div>
                   <div className="row" style={{ marginTop: 8 }}>
                     <button className="btn small" onClick={() => setSrc(null)}>
