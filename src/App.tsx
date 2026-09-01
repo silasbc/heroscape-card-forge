@@ -28,7 +28,7 @@ export default function App() {
   const [side, setSide] = useState<Side>('master')
   const [tool, setTool] = useState<Tool>('none')
   const [activeLayer, setActiveLayer] = useState<string | null>(null)
-  const [photo, setPhoto] = useState<{ purpose: PhotoPurpose } | null>(null)
+  const [photo, setPhoto] = useState<{ purpose: PhotoPurpose; file?: File | null } | null>(null)
   const [hzEdit, setHzEdit] = useState(false)
   const [print, setPrint] = useState(false)
   const [presets, setPresets] = useState(false)
@@ -41,7 +41,6 @@ export default function App() {
     let alive = true
     ;(async () => {
       await loadFonts()
-      await requestPersistence()
       let list = await listCards()
       if (!list.length) {
         // shared promise: React StrictMode runs this effect twice in development
@@ -171,7 +170,15 @@ export default function App() {
     for (const f of Array.from(files)) {
       const b = await parseImport(f)
       if (!b) {
-        show(`${f.name}: not a Card Forge file`)
+        const isPhoto = f.type.startsWith('image/') || /\.(heic|heif|jpe?g|png|webp|gif|bmp)$/i.test(f.name)
+        if (isPhoto) {
+          // a plain picture: treat it as a figure photo rather than a saved card
+          setView('editor')
+          setPhoto({ purpose: 'portrait', file: f })
+          show('That is a photo, so it is being added as a figure photo.')
+          return
+        }
+        show(`${f.name}: not a Card Forge file or a photo`)
         continue
       }
       const saved = await importBundle(b)
@@ -186,6 +193,7 @@ export default function App() {
     const purpose = photo?.purpose
     setPhoto(null)
     if (!purpose) return
+    void requestPersistence()
     update((c) => {
       const next = { ...c }
       if (purpose === 'portrait' || purpose === 'basicPortrait') {
@@ -247,13 +255,16 @@ export default function App() {
         <button className="btn" onClick={createCard}>
           + New
         </button>
-        <button className="btn" onClick={() => fileRef.current?.click()}>
-          Import
+        <button className="btn primary" onClick={() => setPhoto({ purpose: 'portrait' })} title="Add a photo of your mini to the card">
+          📷 Add photo
+        </button>
+        <button className="btn" onClick={() => fileRef.current?.click()} title="Open a saved card (.png or .json) or a photo">
+          Open file
         </button>
         <input
           ref={fileRef}
           type="file"
-          accept=".png,.json,image/png,application/json"
+          accept=".png,.json,.jpg,.jpeg,.webp,.heic,.heif,image/*,application/json"
           multiple
           hidden
           onChange={(e) => {
@@ -262,7 +273,7 @@ export default function App() {
           }}
         />
         <div className="menu" onClick={(e) => e.stopPropagation()}>
-          <button className="btn primary" onClick={() => setMenu((m) => !m)}>
+          <button className="btn" onClick={() => setMenu((m) => !m)}>
             Download ▾
           </button>
           {menu && (
@@ -336,7 +347,7 @@ export default function App() {
         </div>
       )}
 
-      {photo && <PhotoTool purpose={photo.purpose} onClose={() => setPhoto(null)} onDone={onPhotoDone} />}
+      {photo && <PhotoTool purpose={photo.purpose} initialFile={photo.file} onClose={() => setPhoto(null)} onDone={onPhotoDone} />}
       {hzEdit && <HitZoneEditor card={card} update={update} onClose={() => setHzEdit(false)} />}
       {print && <PrintDialog cards={cards} current={card} onClose={() => setPrint(false)} />}
       {presets && <PresetPicker onPick={applyPresetToCard} onClose={() => setPresets(false)} />}

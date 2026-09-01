@@ -19,16 +19,44 @@ export function blobToImage(blob: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(blob)
     const img = new Image()
-    img.onload = () => {
+    const done = async () => {
+      try {
+        // make sure the pixels are decoded before the URL goes away (Safari)
+        if (typeof img.decode === 'function') await img.decode()
+      } catch {
+        /* fall through: a load event already fired */
+      }
       URL.revokeObjectURL(url)
       resolve(img)
     }
-    img.onerror = (e) => {
+    img.onload = () => void done()
+    img.onerror = () => {
       URL.revokeObjectURL(url)
-      reject(e)
+      reject(new Error('This image format could not be decoded'))
     }
     img.src = url
   })
+}
+
+function looksLikeHeic(file: Blob): boolean {
+  const name = ((file as File).name ?? '').toLowerCase()
+  return /heic|heif/.test(file.type) || /\.(heic|heif)$/.test(name)
+}
+
+/** Decode any upload, converting iPhone HEIC/HEIF photos in the browser when the browser cannot. */
+export async function decodeUpload(file: Blob): Promise<{ img: HTMLImageElement; blob: Blob }> {
+  try {
+    return { img: await blobToImage(file), blob: file }
+  } catch (err) {
+    // Chrome and Firefox cannot decode HEIC; fall back to a WASM decoder for
+    // anything that is HEIC-like or of unknown type.
+    if (!looksLikeHeic(file) && file.type && file.type !== 'application/octet-stream') throw err
+    const mod = await import('heic2any')
+    const heic2any = mod.default as (o: { blob: Blob; toType: string; quality?: number }) => Promise<Blob | Blob[]>
+    const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
+    const jpeg = Array.isArray(out) ? out[0] : out
+    return { img: await blobToImage(jpeg), blob: jpeg }
+  }
 }
 
 export function urlToImage(url: string): Promise<HTMLImageElement> {
@@ -129,9 +157,9 @@ export function loadAsset(path: string): Promise<HTMLImageElement | null> {
 
 /** Downscale very large uploads so previews stay snappy and exports stay sane. */
 export async function normalizeUpload(file: Blob, maxSide = 2400): Promise<Blob> {
-  const img = await blobToImage(file)
+  const { img, blob } = await decodeUpload(file)
   const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight))
-  if (scale === 1 && file.type === 'image/png') return file
+  if (scale === 1 && blob.type === 'image/png') return blob
   const c = document.createElement('canvas')
   c.width = Math.round(img.naturalWidth * scale)
   c.height = Math.round(img.naturalHeight * scale)

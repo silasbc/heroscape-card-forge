@@ -9,6 +9,8 @@ type Method = 'ai' | 'key' | 'none'
 
 interface Props {
   purpose: PhotoPurpose
+  /** a file handed in from elsewhere (e.g. the Open button), picked immediately */
+  initialFile?: File | null
   onClose: () => void
   onDone: (imageId: string, opts: { alsoHitZone: boolean }) => void
 }
@@ -22,7 +24,7 @@ const TITLES: Record<PhotoPurpose, string> = {
   emblem: 'Upload a custom emblem',
 }
 
-export function PhotoTool({ purpose, onClose, onDone }: Props) {
+export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
   const isCutoutPurpose = purpose === 'portrait' || purpose === 'basicPortrait' || purpose === 'hitzone' || purpose === 'emblem'
   const [src, setSrc] = useState<HTMLImageElement | null>(null)
   const [srcUrl, setSrcUrl] = useState<string | null>(null)
@@ -47,6 +49,19 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    if (initialFile) void pickFile(initialFile)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFile])
+
+  const openPicker = (camera: boolean) => {
+    const input = fileRef.current
+    if (!input) return
+    if (camera) input.setAttribute('capture', 'environment')
+    else input.removeAttribute('capture')
+    input.click()
+  }
+
   const pickFile = async (f: File | undefined | null) => {
     if (!f) return
     setError(null)
@@ -60,7 +75,11 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
       })
       setSrc(img)
     } catch (err) {
-      setError('Could not read that image: ' + (err as Error).message)
+      setError(
+        'Could not read that image (' +
+          (err as Error).message +
+          '). JPG, PNG, WebP and HEIC photos work; if it came from another app, try saving it as a JPG first.',
+      )
     }
   }
 
@@ -165,7 +184,7 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
             <>
               <div
                 className={'drop' + (over ? ' over' : '')}
-                onClick={() => fileRef.current?.click()}
+                onClick={() => openPicker(false)}
                 onDragOver={(e) => {
                   e.preventDefault()
                   setOver(true)
@@ -182,13 +201,13 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
                   <b>Tap to choose a photo</b> or drop one here
                 </div>
                 <div className="tiny" style={{ marginTop: 6 }}>
-                  {isCutoutPurpose ? 'Best results: the mini on plain white paper, even light, filling most of the frame.' : 'Any JPG or PNG.'}
+                  {isCutoutPurpose ? 'Best results: the mini on plain white paper, even light, filling most of the frame.' : 'Any photo.'} JPG, PNG, WebP or HEIC.
                 </div>
               </div>
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,.heic,.heif"
                 hidden
                 onChange={(e) => {
                   void pickFile(e.target.files?.[0])
@@ -197,8 +216,8 @@ export function PhotoTool({ purpose, onClose, onDone }: Props) {
               />
               {isCutoutPurpose && (
                 <div className="row">
-                  <button className="btn" onClick={() => fileRef.current?.setAttribute('capture', 'environment') || fileRef.current?.click()}>
-                    Use camera
+                  <button className="btn" onClick={() => openPicker(true)}>
+                    Take a photo now
                   </button>
                 </div>
               )}
