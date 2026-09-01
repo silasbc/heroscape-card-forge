@@ -218,7 +218,6 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
 
   const onWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     if (tool === 'none') return
-    e.preventDefault()
     const f = Math.exp(-e.deltaY * 0.0015)
     applyScale(currentScale() * f)
   }
