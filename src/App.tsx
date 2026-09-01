@@ -18,7 +18,7 @@ import { Toast, useToast } from './components/Toast'
 
 export type Updater = (fn: (c: CardDesign) => CardDesign) => void
 
-let demoStarted = false
+let demoPromise: Promise<void> | null = null
 
 export default function App() {
   const [ready, setReady] = useState(false)
@@ -43,11 +43,13 @@ export default function App() {
       await loadFonts()
       await requestPersistence()
       let list = await listCards()
-      if (!list.length && !demoStarted) {
-        demoStarted = true
-        const demo = await makeDemoCard()
-        // re-check: React StrictMode runs effects twice in development
-        if (!(await listCards()).length) await saveCard(demo)
+      if (!list.length) {
+        // shared promise: React StrictMode runs this effect twice in development
+        demoPromise ??= (async () => {
+          const demo = await makeDemoCard()
+          if (!(await listCards()).length) await saveCard(demo)
+        })()
+        await demoPromise
         list = await listCards()
       }
       if (!alive) return
