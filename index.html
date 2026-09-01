@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#14161c" />
+    <meta name="description" content="Design and print custom Heroscape army cards in your browser. Free, no account, works on phones." />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <title>Card Forge · Heroscape army card maker</title>
+    <script>
+      // Cross-origin isolation lets the cutout model use multiple threads on
+      // browsers without WebGPU. Registers a service worker and reloads once.
+      window.coi = { coepCredentialless: () => false, quiet: true }
+    </script>
+    <script src="coi-serviceworker.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

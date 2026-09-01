@@ -1,0 +1,2825 @@
+{
+  "rotv": {
+    "width": 728,
+    "height": 691,
+    "dpi": 150,
+    "side": "master",
+    "shortName": "RotV",
+    "fullName": "Rise of the Valkyrie",
+    "blank": "classic/rotv/{general}.jpg",
+    "blanks": [
+      "aquilla",
+      "custom",
+      "einar",
+      "jandar",
+      "ullar",
+      "utgar",
+      "valkrill",
+      "vydar"
+    ],
+    "blankPixelSize": [
+      728,
+      691
+    ],
+    "scripts": {
+      "abilheight": 450,
+      "abilheightWithBottomSymbol": 410,
+      "colorcheck": {
+        "default": "rgb(255,255,255)",
+        "byGeneral": {
+          "jandar": "rgb(70,70,70)",
+          "valkrill": "rgb(40,40,40)"
+        }
+      }
+    },
+    "fields": {
+      "chcg24": {
+        "left": 585,
+        "top": 393,
+        "width": 42,
+        "height": 42,
+        "alignment": null,
+        "zIndex": 5,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "/heroscape.mse-game/chcg24/jandar.png",
+          "utgar": "/heroscape.mse-game/chcg24/utgar.png",
+          "vydar": "/heroscape.mse-game/chcg24/vydar.png",
+          "ullar": "/heroscape.mse-game/chcg24/ullar.png",
+          "einar": "/heroscape.mse-game/chcg24/einar.png",
+          "aquilla": "/heroscape.mse-game/chcg24/aquilla.png",
+          "valkrill": "/heroscape.mse-game/chcg24/valkrill.png"
+        },
+        "sourceExpr": {
+          "left": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 585 else if set.chcg24 = \"Include at bottom of text box\" then 208 else -1000 }",
+          "top": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 393 else if set.chcg24 = \"Include at bottom of text box\" then 603 else -1000 }"
+        }
+      },
+      "disclaimer": {
+        "left": 5,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "author text": {
+        "left": 650,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "card type": {
+        "left": 0,
+        "top": 0,
+        "width": 728,
+        "height": 691,
+        "alignment": null,
+        "zIndex": -2,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "cardblanks/jandar.jpg",
+          "ullar": "cardblanks/ullar.jpg",
+          "utgar": "cardblanks/utgar.jpg",
+          "einar": "cardblanks/einar.jpg",
+          "vydar": "cardblanks/vydar.jpg",
+          "aquilla": "cardblanks/aquilla.jpg",
+          "valkrill": "cardblanks/valkrill.jpg",
+          "custom": "cardblanks/custom.jpg"
+        }
+      },
+      "image": {
+        "left": 341,
+        "top": 22,
+        "width": 246,
+        "height": 523,
+        "alignment": null,
+        "zIndex": 1,
+        "font": null,
+        "mask": "imagemask.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"no\" then 341 else -1000}"
+        }
+      },
+      "imagefogged": {
+        "left": 341,
+        "top": 22,
+        "width": 246,
+        "height": 523,
+        "alignment": null,
+        "zIndex": 1,
+        "font": null,
+        "mask": "imagemask_fogged.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"yes\" then 341 else -1000}"
+        }
+      },
+      "hitzone": {
+        "left": 582,
+        "top": 223,
+        "width": 128,
+        "height": 244,
+        "alignment": null,
+        "zIndex": 2,
+        "font": null,
+        "mask": "hzmask.png",
+        "kind": "image"
+      },
+      "abilities": {
+        "left": 162,
+        "top": 181,
+        "width": 161,
+        "height": 450,
+        "alignment": null,
+        "zIndex": 3,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "black",
+          "scaleDownTo": 6
+        },
+        "mask": "textmask.png",
+        "kind": "text",
+        "lineHeightSoft": 0.96,
+        "sourceExpr": {
+          "height": "script: abilheight()"
+        }
+      },
+      "generallogo": {
+        "left": 210,
+        "top": 41,
+        "width": 51,
+        "height": 59,
+        "alignment": null,
+        "zIndex": null,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "blank": "/heroscape.mse-game/gensymbols/hex.png",
+          "jandar": "/heroscape.mse-game/gensymbols/jandar.png",
+          "utgar": "/heroscape.mse-game/gensymbols/utgar.png",
+          "vydar": "/heroscape.mse-game/gensymbols/vydar.png",
+          "ullar": "/heroscape.mse-game/gensymbols/ullar.png",
+          "einar": "/heroscape.mse-game/gensymbols/einar.png",
+          "aquilla": "/heroscape.mse-game/gensymbols/aquilla.png",
+          "valkrill": "/heroscape.mse-game/gensymbols/valkrill.png",
+          "custom1": "/heroscape.mse-game/gensymbols/custom1.png",
+          "custom2": "/heroscape.mse-game/gensymbols/custom2.png",
+          "custom3": "/heroscape.mse-game/gensymbols/custom3.png",
+          "symbolcustom1": "script: symbol_variation(symbol: set.symbol1, variation: \"standard\")",
+          "symbolcustom2": "script: symbol_variation(symbol: set.symbol2, variation: \"standard\")",
+          "symbolcustom3": "script: symbol_variation(symbol: set.symbol3, variation: \"standard\")"
+        }
+      },
+      "name": {
+        "left": 159,
+        "top": 107,
+        "width": 156,
+        "height": 35,
+        "alignment": "middle center",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "lineHeightSoft": 0.9,
+        "paddingBottom": 0
+      },
+      "general": {
+        "left": 192,
+        "top": 147,
+        "width": 91,
+        "height": 17,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 10,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "species": {
+        "left": 70,
+        "top": 281,
+        "width": 63,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "type": {
+        "left": 37,
+        "top": 307,
+        "width": 97,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "class": {
+        "left": 20,
+        "top": 331,
+        "width": 113,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "personality": {
+        "left": 20,
+        "top": 357,
+        "width": 113,
+        "height": 14,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "size": {
+        "left": 49,
+        "top": 380,
+        "width": 85,
+        "height": 30,
+        "alignment": "right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)",
+        "sourceExpr": {
+          "width": "{85 - card_style.marvel_size_number.content_width}"
+        }
+      },
+      "marvel size number": {
+        "left": 97,
+        "top": 380,
+        "width": 40,
+        "height": 30,
+        "alignment": "right shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "life": {
+        "left": 454,
+        "top": 334,
+        "width": 39,
+        "height": 27,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 20,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "move": {
+        "left": 498,
+        "top": 390,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "range": {
+        "left": 498,
+        "top": 438,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "attack": {
+        "left": 498,
+        "top": 487,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "defense": {
+        "left": 498,
+        "top": 536,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "points": {
+        "left": 438,
+        "top": 577,
+        "width": 68,
+        "height": 27,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "colorByGeneral": {
+          "jandar": "rgb(70,70,70)",
+          "valkrill": "rgb(40,40,40)"
+        },
+        "sourceExpr": {
+          "color": "script: colorcheck( card.card_type )"
+        }
+      },
+      "marvelsym": {
+        "left": 189,
+        "top": 591,
+        "width": 76,
+        "height": 45,
+        "alignment": "middle center",
+        "zIndex": 3,
+        "font": {
+          "family": "heroscape-marvelsymbols",
+          "size": 60,
+          "weight": "normal",
+          "color": null,
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "symbol",
+        "symbolFont": true,
+        "sourceExpr": {
+          "left": "{ if set.show_marvel_sym = \"Include\" then 189 else -1000 }"
+        }
+      },
+      "move ext": {
+        "left": 488,
+        "top": 414,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "range ext": {
+        "left": 488,
+        "top": 463,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "attack ext": {
+        "left": 488,
+        "top": 511,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "defense ext": {
+        "left": 488,
+        "top": 559,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      }
+    },
+    "masks": {
+      "image": {
+        "file": "classic/rotv/imagemask.png",
+        "w": 246,
+        "h": 523,
+        "shownBox": [
+          0,
+          4,
+          245,
+          514
+        ],
+        "coverage": 0.543,
+        "usesAlpha": false
+      },
+      "imagefogged": {
+        "file": "classic/rotv/imagemask_fogged.png",
+        "w": 246,
+        "h": 523,
+        "shownBox": [
+          0,
+          5,
+          244,
+          282
+        ],
+        "coverage": 0.42,
+        "usesAlpha": false
+      },
+      "hitzone": {
+        "file": "classic/rotv/hzmask.png",
+        "w": 128,
+        "h": 244,
+        "shownBox": [
+          2,
+          5,
+          123,
+          235
+        ],
+        "coverage": 0.653,
+        "usesAlpha": false
+      },
+      "text": {
+        "file": "classic/rotv/textmask.png",
+        "w": 161,
+        "h": 450,
+        "shownBox": [
+          0,
+          0,
+          161,
+          449
+        ],
+        "coverage": 0.917,
+        "usesAlpha": false
+      }
+    },
+    "hitzoneBlackBox": [
+      585,
+      226,
+      127,
+      232
+    ],
+    "hitzoneAnalysis": {
+      "method": "4-connected component of 3x3-eroded near-black pixels (r,g,b<40), seeded at the centre of the hitzone field box in cardblanks/jandar.jpg, bbox dilated back by 1px",
+      "shape": "right half of a pointy-top hexagon: full-height vertical edge on the left, shorter vertical edge on the right, straight slants between",
+      "halfHexPolygon": [
+        [
+          585,
+          227
+        ],
+        [
+          712,
+          298
+        ],
+        [
+          712,
+          390
+        ],
+        [
+          585,
+          457
+        ]
+      ],
+      "leftEdgeY": [
+        227,
+        457
+      ],
+      "rightEdgeY": [
+        298,
+        390
+      ],
+      "rawDarkBoxRight40pct": [
+        437,
+        24,
+        287,
+        600
+      ],
+      "rawDarkCount": 20837,
+      "componentBox": [
+        585,
+        226,
+        127,
+        232
+      ],
+      "componentCount": 19536,
+      "hitzoneFieldBox": [
+        582,
+        223,
+        128,
+        244
+      ],
+      "hzMaskShownBoxOnCard": [
+        584,
+        228,
+        123,
+        235
+      ]
+    }
+  },
+  "sotm": {
+    "width": 728,
+    "height": 691,
+    "dpi": 150,
+    "side": "master",
+    "shortName": "SotM",
+    "fullName": "Swarm of the Marro",
+    "blank": "classic/sotm/{general}.jpg",
+    "blanks": [
+      "aquilla",
+      "custom",
+      "einar",
+      "jandar",
+      "ullar",
+      "utgar",
+      "valkrill",
+      "vydar"
+    ],
+    "blankPixelSize": [
+      728,
+      691
+    ],
+    "scripts": {
+      "abilheight": 445,
+      "abilheightWithBottomSymbol": 410,
+      "colorcheck": {
+        "default": "rgb(255,255,255)",
+        "byGeneral": {
+          "jandar": "rgb(70,70,70)",
+          "valkrill": "rgb(40,40,40)"
+        }
+      }
+    },
+    "fields": {
+      "chcg24": {
+        "left": 585,
+        "top": 393,
+        "width": 42,
+        "height": 42,
+        "alignment": null,
+        "zIndex": 5,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "/heroscape.mse-game/chcg24/jandar.png",
+          "utgar": "/heroscape.mse-game/chcg24/utgar.png",
+          "vydar": "/heroscape.mse-game/chcg24/vydar.png",
+          "ullar": "/heroscape.mse-game/chcg24/ullar.png",
+          "einar": "/heroscape.mse-game/chcg24/einar.png",
+          "aquilla": "/heroscape.mse-game/chcg24/aquilla.png",
+          "valkrill": "/heroscape.mse-game/chcg24/valkrill.png"
+        },
+        "sourceExpr": {
+          "left": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 585 else if set.chcg24 = \"Include at bottom of text box\" then 208 else -1000 }",
+          "top": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 393 else if set.chcg24 = \"Include at bottom of text box\" then 603 else -1000 }"
+        }
+      },
+      "disclaimer": {
+        "left": 5,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "author text": {
+        "left": 650,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "generallogo": {
+        "left": 210,
+        "top": 41,
+        "width": 51,
+        "height": 59,
+        "alignment": null,
+        "zIndex": null,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "blank": "/heroscape.mse-game/gensymbols/hex.png",
+          "jandar": "/heroscape.mse-game/gensymbols/jandar.png",
+          "utgar": "/heroscape.mse-game/gensymbols/utgar.png",
+          "vydar": "/heroscape.mse-game/gensymbols/vydar.png",
+          "ullar": "/heroscape.mse-game/gensymbols/ullar.png",
+          "einar": "/heroscape.mse-game/gensymbols/einar.png",
+          "aquilla": "/heroscape.mse-game/gensymbols/aquilla.png",
+          "valkrill": "/heroscape.mse-game/gensymbols/valkrill.png",
+          "custom1": "/heroscape.mse-game/gensymbols/custom1.png",
+          "custom2": "/heroscape.mse-game/gensymbols/custom2.png",
+          "custom3": "/heroscape.mse-game/gensymbols/custom3.png",
+          "symbolcustom1": "script: symbol_variation(symbol: set.symbol1, variation: \"standard\")",
+          "symbolcustom2": "script: symbol_variation(symbol: set.symbol2, variation: \"standard\")",
+          "symbolcustom3": "script: symbol_variation(symbol: set.symbol3, variation: \"standard\")"
+        }
+      },
+      "name": {
+        "left": 159,
+        "top": 107,
+        "width": 156,
+        "height": 35,
+        "alignment": "middle center",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "lineHeightSoft": 0.9,
+        "paddingBottom": 0
+      },
+      "card type": {
+        "left": 0,
+        "top": 0,
+        "width": 728,
+        "height": 691,
+        "alignment": null,
+        "zIndex": -2,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "cardblanks/jandar.jpg",
+          "ullar": "cardblanks/ullar.jpg",
+          "utgar": "cardblanks/utgar.jpg",
+          "einar": "cardblanks/einar.jpg",
+          "vydar": "cardblanks/vydar.jpg",
+          "aquilla": "cardblanks/aquilla.jpg",
+          "valkrill": "cardblanks/valkrill.jpg",
+          "custom": "cardblanks/custom.jpg"
+        }
+      },
+      "image": {
+        "left": 341,
+        "top": 21,
+        "width": 246,
+        "height": 523,
+        "alignment": null,
+        "zIndex": 1,
+        "font": null,
+        "mask": "imagemask.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"no\" then 341 else -1000}"
+        }
+      },
+      "imagefogged": {
+        "left": 341,
+        "top": 21,
+        "width": 249,
+        "height": 523,
+        "alignment": null,
+        "zIndex": 1,
+        "font": null,
+        "mask": "imagemask_fogged.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"yes\" then 341 else -1000}"
+        }
+      },
+      "hitzone": {
+        "left": 583,
+        "top": 227,
+        "width": 128,
+        "height": 244,
+        "alignment": null,
+        "zIndex": 2,
+        "font": null,
+        "mask": "hzmask.png",
+        "kind": "image"
+      },
+      "abilities": {
+        "left": 162,
+        "top": 181,
+        "width": 195,
+        "height": 445,
+        "alignment": null,
+        "zIndex": 3,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "black",
+          "scaleDownTo": 6
+        },
+        "mask": "textmask.png",
+        "kind": "text",
+        "lineHeightSoft": 0.96,
+        "sourceExpr": {
+          "height": "script: abilheight()"
+        }
+      },
+      "general": {
+        "left": 192,
+        "top": 147,
+        "width": 91,
+        "height": 17,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 10,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "species": {
+        "left": 69,
+        "top": 281,
+        "width": 65,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "type": {
+        "left": 37,
+        "top": 307,
+        "width": 97,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "class": {
+        "left": 21,
+        "top": 331,
+        "width": 113,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "personality": {
+        "left": 21,
+        "top": 355,
+        "width": 113,
+        "height": 14,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "size": {
+        "left": 49,
+        "top": 380,
+        "width": 85,
+        "height": 30,
+        "alignment": "right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)",
+        "sourceExpr": {
+          "width": "{85 - card_style.marvel_size_number.content_width}"
+        }
+      },
+      "marvel size number": {
+        "left": 97,
+        "top": 380,
+        "width": 40,
+        "height": 30,
+        "alignment": "right shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "life": {
+        "left": 457,
+        "top": 335,
+        "width": 39,
+        "height": 27,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 20,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "move": {
+        "left": 498,
+        "top": 390,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "range": {
+        "left": 498,
+        "top": 436,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "attack": {
+        "left": 498,
+        "top": 486,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "defense": {
+        "left": 498,
+        "top": 536,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "points": {
+        "left": 441,
+        "top": 577,
+        "width": 68,
+        "height": 27,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "colorByGeneral": {
+          "jandar": "rgb(70,70,70)",
+          "valkrill": "rgb(40,40,40)"
+        },
+        "sourceExpr": {
+          "color": "script: colorcheck( card.card_type )"
+        }
+      },
+      "marvelsym": {
+        "left": 192,
+        "top": 591,
+        "width": 76,
+        "height": 45,
+        "alignment": "middle center",
+        "zIndex": 3,
+        "font": {
+          "family": "heroscape-marvelsymbols",
+          "size": 60,
+          "weight": "normal",
+          "color": null,
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "symbol",
+        "symbolFont": true,
+        "sourceExpr": {
+          "left": "{ if set.show_marvel_sym = \"Include\" then 192 else -1000 }"
+        }
+      },
+      "move ext": {
+        "left": 488,
+        "top": 414,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "range ext": {
+        "left": 488,
+        "top": 461,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "attack ext": {
+        "left": 488,
+        "top": 509,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "defense ext": {
+        "left": 488,
+        "top": 559,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      }
+    },
+    "masks": {
+      "image": {
+        "file": "classic/sotm/imagemask.png",
+        "w": 246,
+        "h": 523,
+        "shownBox": [
+          6,
+          5,
+          236,
+          512
+        ],
+        "coverage": 0.501,
+        "usesAlpha": false
+      },
+      "imagefogged": {
+        "file": "classic/sotm/imagemask_fogged.png",
+        "w": 246,
+        "h": 523,
+        "shownBox": [
+          6,
+          5,
+          236,
+          307
+        ],
+        "coverage": 0.44,
+        "usesAlpha": false
+      },
+      "hitzone": {
+        "file": "classic/sotm/hzmask.png",
+        "w": 128,
+        "h": 244,
+        "shownBox": [
+          0,
+          1,
+          128,
+          238
+        ],
+        "coverage": 0.652,
+        "usesAlpha": false
+      },
+      "text": {
+        "file": "classic/sotm/textmask.png",
+        "w": 195,
+        "h": 445,
+        "shownBox": [
+          0,
+          1,
+          194,
+          444
+        ],
+        "coverage": 0.899,
+        "usesAlpha": false
+      }
+    },
+    "hitzoneBlackBox": [
+      583,
+      228,
+      126,
+      236
+    ],
+    "hitzoneAnalysis": {
+      "method": "4-connected component of 3x3-eroded near-black pixels (r,g,b<40), seeded at the centre of the hitzone field box in cardblanks/jandar.jpg, bbox dilated back by 1px",
+      "shape": "right half of a pointy-top hexagon: full-height vertical edge on the left, shorter vertical edge on the right, straight slants between",
+      "halfHexPolygon": [
+        [
+          583,
+          229
+        ],
+        [
+          709,
+          302
+        ],
+        [
+          709,
+          392
+        ],
+        [
+          583,
+          462
+        ]
+      ],
+      "leftEdgeY": [
+        229,
+        462
+      ],
+      "rightEdgeY": [
+        302,
+        392
+      ],
+      "rawDarkBoxRight40pct": [
+        486,
+        28,
+        236,
+        593
+      ],
+      "rawDarkCount": 20309,
+      "componentBox": [
+        583,
+        228,
+        126,
+        236
+      ],
+      "componentCount": 19366,
+      "hitzoneFieldBox": [
+        583,
+        227,
+        128,
+        244
+      ],
+      "hzMaskShownBoxOnCard": [
+        583,
+        228,
+        128,
+        238
+      ]
+    }
+  },
+  "ds": {
+    "width": 728,
+    "height": 691,
+    "dpi": 150,
+    "side": "master",
+    "shortName": "DS",
+    "fullName": "Dungeon Set Styles",
+    "blank": "classic/ds/{general}.jpg",
+    "blanks": [
+      "aquilla",
+      "custom",
+      "einar",
+      "jandar",
+      "ullar",
+      "utgar",
+      "valkrill",
+      "vydar"
+    ],
+    "blankPixelSize": [
+      728,
+      691
+    ],
+    "scripts": {
+      "abilheight": 472,
+      "abilheightWithBottomSymbol": 430,
+      "colorcheck": {
+        "default": "rgb(255,255,255)",
+        "byGeneral": {
+          "jandar": "rgb(70,70,70)",
+          "valkrill": "rgb(40,40,40)"
+        }
+      }
+    },
+    "fields": {
+      "chcg24": {
+        "left": 590,
+        "top": 393,
+        "width": 42,
+        "height": 42,
+        "alignment": null,
+        "zIndex": 5,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "/heroscape.mse-game/chcg24/jandar.png",
+          "utgar": "/heroscape.mse-game/chcg24/utgar.png",
+          "vydar": "/heroscape.mse-game/chcg24/vydar.png",
+          "ullar": "/heroscape.mse-game/chcg24/ullar.png",
+          "einar": "/heroscape.mse-game/chcg24/einar.png",
+          "aquilla": "/heroscape.mse-game/chcg24/aquilla.png",
+          "valkrill": "/heroscape.mse-game/chcg24/valkrill.png"
+        },
+        "sourceExpr": {
+          "left": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 590 else if set.chcg24 = \"Include at bottom of text box\" then 213 else -1000 }",
+          "top": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 393 else if set.chcg24 = \"Include at bottom of text box\" then 613 else -1000 }"
+        }
+      },
+      "disclaimer": {
+        "left": 5,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "author text": {
+        "left": 650,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "card type": {
+        "left": 0,
+        "top": 0,
+        "width": 728,
+        "height": 691,
+        "alignment": null,
+        "zIndex": -2,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "cardblanks/jandar.jpg",
+          "ullar": "cardblanks/ullar.jpg",
+          "utgar": "cardblanks/utgar.jpg",
+          "einar": "cardblanks/einar.jpg",
+          "vydar": "cardblanks/vydar.jpg",
+          "aquilla": "cardblanks/aquilla.jpg",
+          "valkrill": "cardblanks/valkrill.jpg",
+          "custom": "cardblanks/custom.jpg"
+        }
+      },
+      "image": {
+        "left": 345,
+        "top": 25,
+        "width": 246,
+        "height": 523,
+        "alignment": null,
+        "zIndex": 1,
+        "font": null,
+        "mask": "imagemask.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"no\" then 345 else -1000}"
+        }
+      },
+      "imagefogged": {
+        "left": 345,
+        "top": 25,
+        "width": 246,
+        "height": 523,
+        "alignment": null,
+        "zIndex": 1,
+        "font": null,
+        "mask": "imagemask_fogged.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"yes\" then 345 else -1000}"
+        }
+      },
+      "hitzone": {
+        "left": 584,
+        "top": 226,
+        "width": 128,
+        "height": 244,
+        "alignment": null,
+        "zIndex": 2,
+        "font": null,
+        "mask": "hzmask.png",
+        "kind": "image"
+      },
+      "abilities": {
+        "left": 159,
+        "top": 178,
+        "width": 205,
+        "height": 472,
+        "alignment": null,
+        "zIndex": 3,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "black",
+          "scaleDownTo": 6
+        },
+        "mask": "textmask.png",
+        "kind": "text",
+        "lineHeightSoft": 0.96,
+        "sourceExpr": {
+          "height": "script: abilheight()"
+        }
+      },
+      "generallogo": {
+        "left": 209,
+        "top": 41,
+        "width": 51,
+        "height": 59,
+        "alignment": null,
+        "zIndex": null,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "blank": "/heroscape.mse-game/gensymbols/hex.png",
+          "jandar": "/heroscape.mse-game/gensymbols/jandar.png",
+          "utgar": "/heroscape.mse-game/gensymbols/utgar.png",
+          "vydar": "/heroscape.mse-game/gensymbols/vydar.png",
+          "ullar": "/heroscape.mse-game/gensymbols/ullar.png",
+          "einar": "/heroscape.mse-game/gensymbols/einar.png",
+          "aquilla": "/heroscape.mse-game/gensymbols/aquilla.png",
+          "valkrill": "/heroscape.mse-game/gensymbols/valkrill.png",
+          "custom1": "/heroscape.mse-game/gensymbols/custom1.png",
+          "custom2": "/heroscape.mse-game/gensymbols/custom2.png",
+          "custom3": "/heroscape.mse-game/gensymbols/custom3.png",
+          "symbolcustom1": "script: symbol_variation(symbol: set.symbol1, variation: \"standard\")",
+          "symbolcustom2": "script: symbol_variation(symbol: set.symbol2, variation: \"standard\")",
+          "symbolcustom3": "script: symbol_variation(symbol: set.symbol3, variation: \"standard\")"
+        }
+      },
+      "name": {
+        "left": 158,
+        "top": 107,
+        "width": 156,
+        "height": 35,
+        "alignment": "middle center",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "lineHeightSoft": 0.9,
+        "paddingBottom": 0
+      },
+      "general": {
+        "left": 192,
+        "top": 147,
+        "width": 91,
+        "height": 17,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 10,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "species": {
+        "left": 72,
+        "top": 285,
+        "width": 63,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "type": {
+        "left": 39,
+        "top": 311,
+        "width": 97,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "class": {
+        "left": 22,
+        "top": 335,
+        "width": 113,
+        "height": 15,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "personality": {
+        "left": 22,
+        "top": 361,
+        "width": 113,
+        "height": 14,
+        "alignment": "middle right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 11,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "size": {
+        "left": 51,
+        "top": 384,
+        "width": 85,
+        "height": 30,
+        "alignment": "right shrink-overflow",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)",
+        "sourceExpr": {
+          "width": "{85 - card_style.marvel_size_number.content_width}"
+        }
+      },
+      "marvel size number": {
+        "left": 99,
+        "top": 384,
+        "width": 40,
+        "height": 30,
+        "alignment": "right shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "separatorColor": "rgb(128,128,128)"
+      },
+      "life": {
+        "left": 458,
+        "top": 340,
+        "width": 39,
+        "height": 27,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 20,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "move": {
+        "left": 503,
+        "top": 393,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "range": {
+        "left": 503,
+        "top": 441,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "attack": {
+        "left": 503,
+        "top": 488,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "defense": {
+        "left": 503,
+        "top": 537,
+        "width": 53,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "points": {
+        "left": 443,
+        "top": 582,
+        "width": 68,
+        "height": 27,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 18,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "colorByGeneral": {
+          "jandar": "rgb(70,70,70)",
+          "valkrill": "rgb(40,40,40)"
+        },
+        "sourceExpr": {
+          "color": "script: colorcheck( card.card_type )"
+        }
+      },
+      "marvelsym": {
+        "left": 196,
+        "top": 601,
+        "width": 76,
+        "height": 45,
+        "alignment": "middle center",
+        "zIndex": 3,
+        "font": {
+          "family": "heroscape-marvelsymbols",
+          "size": 60,
+          "weight": "normal",
+          "color": null,
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "symbol",
+        "symbolFont": true,
+        "sourceExpr": {
+          "left": "{ if set.show_marvel_sym = \"Include\" then 196 else -1000 }"
+        }
+      },
+      "move ext": {
+        "left": 493,
+        "top": 416,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "range ext": {
+        "left": 493,
+        "top": 465,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "attack ext": {
+        "left": 493,
+        "top": 513,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "defense ext": {
+        "left": 493,
+        "top": 561,
+        "width": 76,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      }
+    },
+    "masks": {
+      "image": {
+        "file": "classic/ds/imagemask.png",
+        "w": 246,
+        "h": 523,
+        "shownBox": [
+          4,
+          5,
+          238,
+          510
+        ],
+        "coverage": 0.506,
+        "usesAlpha": false
+      },
+      "imagefogged": {
+        "file": "classic/ds/imagemask_fogged.png",
+        "w": 246,
+        "h": 523,
+        "shownBox": [
+          4,
+          5,
+          237,
+          282
+        ],
+        "coverage": 0.407,
+        "usesAlpha": false
+      },
+      "hitzone": {
+        "file": "classic/ds/hzmask.png",
+        "w": 128,
+        "h": 244,
+        "shownBox": [
+          1,
+          4,
+          126,
+          236
+        ],
+        "coverage": 0.659,
+        "usesAlpha": false
+      },
+      "text": {
+        "file": "classic/ds/textmask.png",
+        "w": 183,
+        "h": 447,
+        "shownBox": [
+          0,
+          0,
+          183,
+          447
+        ],
+        "coverage": 0.909,
+        "usesAlpha": false
+      }
+    },
+    "hitzoneBlackBox": [
+      586,
+      229,
+      126,
+      236
+    ],
+    "hitzoneAnalysis": {
+      "method": "4-connected component of 3x3-eroded near-black pixels (r,g,b<40), seeded at the centre of the hitzone field box in cardblanks/jandar.jpg, bbox dilated back by 1px",
+      "shape": "right half of a pointy-top hexagon: full-height vertical edge on the left, shorter vertical edge on the right, straight slants between",
+      "halfHexPolygon": [
+        [
+          586,
+          230
+        ],
+        [
+          712,
+          301
+        ],
+        [
+          712,
+          386
+        ],
+        [
+          586,
+          464
+        ]
+      ],
+      "leftEdgeY": [
+        230,
+        464
+      ],
+      "rightEdgeY": [
+        301,
+        386
+      ],
+      "rawDarkBoxRight40pct": [
+        436,
+        26,
+        276,
+        642
+      ],
+      "rawDarkCount": 21864,
+      "componentBox": [
+        586,
+        229,
+        126,
+        236
+      ],
+      "componentCount": 19453,
+      "hitzoneFieldBox": [
+        584,
+        226,
+        128,
+        244
+      ],
+      "hzMaskShownBoxOnCard": [
+        585,
+        230,
+        126,
+        236
+      ]
+    }
+  },
+  "basic-rotv": {
+    "width": 728,
+    "height": 691,
+    "dpi": 150,
+    "side": "basic",
+    "shortName": "Basic RotV",
+    "fullName": "Rise of the Valkyrie Basic",
+    "blank": "classic/basic-rotv/{general}.jpg",
+    "blanks": [
+      "aquilla",
+      "custom",
+      "einar",
+      "jandar",
+      "ullar",
+      "utgar",
+      "valkrill",
+      "vydar"
+    ],
+    "blankPixelSize": [
+      727,
+      691
+    ],
+    "scripts": {
+      "abilheight": null,
+      "abilheightWithBottomSymbol": null,
+      "colorcheck": null
+    },
+    "fields": {
+      "chcg24": {
+        "left": 585,
+        "top": 388,
+        "width": 42,
+        "height": 42,
+        "alignment": null,
+        "zIndex": 5,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "/heroscape.mse-game/chcg24/jandar.png",
+          "utgar": "/heroscape.mse-game/chcg24/utgar.png",
+          "vydar": "/heroscape.mse-game/chcg24/vydar.png",
+          "ullar": "/heroscape.mse-game/chcg24/ullar.png",
+          "einar": "/heroscape.mse-game/chcg24/einar.png",
+          "aquilla": "/heroscape.mse-game/chcg24/aquilla.png",
+          "valkrill": "/heroscape.mse-game/chcg24/valkrill.png"
+        },
+        "sourceExpr": {
+          "left": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 585 else if set.chcg24 = \"Include at bottom of text box\" then 208 else -1000 }",
+          "top": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 388 else if set.chcg24 = \"Include at bottom of text box\" then 603 else -1000 }"
+        }
+      },
+      "disclaimer": {
+        "left": 5,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "author text": {
+        "left": 650,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "card type": {
+        "left": 0,
+        "top": 0,
+        "width": 727,
+        "height": 691,
+        "alignment": null,
+        "zIndex": -2,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "cardblanks/jandar.jpg",
+          "ullar": "cardblanks/ullar.jpg",
+          "utgar": "cardblanks/utgar.jpg",
+          "einar": "cardblanks/einar.jpg",
+          "vydar": "cardblanks/vydar.jpg",
+          "aquilla": "cardblanks/aquilla.jpg",
+          "valkrill": "cardblanks/valkrill.jpg",
+          "custom": "cardblanks/custom.jpg"
+        }
+      },
+      "generallogo": {
+        "left": 205,
+        "top": 42,
+        "width": 51,
+        "height": 59,
+        "alignment": null,
+        "zIndex": null,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "blank": "/heroscape.mse-game/gensymbols/hex.png",
+          "jandar": "/heroscape.mse-game/gensymbols/jandar.png",
+          "utgar": "/heroscape.mse-game/gensymbols/utgar.png",
+          "vydar": "/heroscape.mse-game/gensymbols/vydar.png",
+          "ullar": "/heroscape.mse-game/gensymbols/ullar.png",
+          "einar": "/heroscape.mse-game/gensymbols/einar.png",
+          "aquilla": "/heroscape.mse-game/gensymbols/aquilla.png",
+          "valkrill": "/heroscape.mse-game/gensymbols/valkrill.png",
+          "custom1": "/heroscape.mse-game/gensymbols/custom1.png",
+          "custom2": "/heroscape.mse-game/gensymbols/custom2.png",
+          "custom3": "/heroscape.mse-game/gensymbols/custom3.png",
+          "symbolcustom1": "script: symbol_variation(symbol: set.symbol1, variation: \"standard\")",
+          "symbolcustom2": "script: symbol_variation(symbol: set.symbol2, variation: \"standard\")",
+          "symbolcustom3": "script: symbol_variation(symbol: set.symbol3, variation: \"standard\")"
+        }
+      },
+      "name": {
+        "left": 154,
+        "top": 108,
+        "width": 156,
+        "height": 35,
+        "alignment": "middle center",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "lineHeightSoft": 0.9,
+        "paddingBottom": 0
+      },
+      "planet": {
+        "left": 165,
+        "top": 496,
+        "width": 170,
+        "height": 20,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "bold",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "expansion": {
+        "left": 165,
+        "top": 516,
+        "width": 170,
+        "height": 20,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "collector number": {
+        "left": 165,
+        "top": 536,
+        "width": 170,
+        "height": 20,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "general": {
+        "left": 3,
+        "top": 8,
+        "width": 90,
+        "height": 16.5,
+        "alignment": "center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 10.5,
+          "weight": "bold",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "basicimage": {
+        "left": 15,
+        "top": 62,
+        "width": 690,
+        "height": 503,
+        "alignment": null,
+        "zIndex": -1,
+        "font": null,
+        "mask": "imagemask.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"no\" then 15 else -1000}"
+        }
+      },
+      "basicimagefogged": {
+        "left": 15,
+        "top": 62,
+        "width": 690,
+        "height": 503,
+        "alignment": null,
+        "zIndex": -1,
+        "font": null,
+        "mask": "imagemask_fogged.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"yes\" then 15 else -1000}"
+        }
+      },
+      "bmove": {
+        "left": 495,
+        "top": 387,
+        "width": 52.2,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "brange": {
+        "left": 495,
+        "top": 435,
+        "width": 52.5,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "battack": {
+        "left": 495,
+        "top": 484,
+        "width": 52.5,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "bdefense": {
+        "left": 495,
+        "top": 531,
+        "width": 52.5,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "bmove ext": {
+        "left": 485,
+        "top": 413,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "brange ext": {
+        "left": 485,
+        "top": 462,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "battack ext": {
+        "left": 485,
+        "top": 511,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "bdefense ext": {
+        "left": 485,
+        "top": 559,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      }
+    },
+    "masks": {
+      "image": {
+        "file": "classic/basic-rotv/imagemask.png",
+        "w": 690,
+        "h": 503,
+        "shownBox": [
+          1,
+          1,
+          689,
+          502
+        ],
+        "coverage": 0.489,
+        "usesAlpha": false
+      },
+      "imagefogged": {
+        "file": "classic/basic-rotv/imagemask_fogged.png",
+        "w": 690,
+        "h": 503,
+        "shownBox": [
+          1,
+          1,
+          689,
+          368
+        ],
+        "coverage": 0.434,
+        "usesAlpha": false
+      }
+    },
+    "hitzoneBlackBox": null,
+    "hitzoneAnalysis": null
+  },
+  "basic-sotm": {
+    "width": 728,
+    "height": 691,
+    "dpi": 150,
+    "side": "basic",
+    "shortName": "Basic SotM",
+    "fullName": "Swarm of the Marro Basic",
+    "blank": "classic/basic-sotm/{general}.jpg",
+    "blanks": [
+      "aquilla",
+      "custom",
+      "einar",
+      "jandar",
+      "ullar",
+      "utgar",
+      "valkrill",
+      "vydar"
+    ],
+    "blankPixelSize": [
+      727,
+      691
+    ],
+    "scripts": {
+      "abilheight": null,
+      "abilheightWithBottomSymbol": null,
+      "colorcheck": null
+    },
+    "fields": {
+      "chcg24": {
+        "left": 585,
+        "top": 388,
+        "width": 42,
+        "height": 42,
+        "alignment": null,
+        "zIndex": 5,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "/heroscape.mse-game/chcg24/jandar.png",
+          "utgar": "/heroscape.mse-game/chcg24/utgar.png",
+          "vydar": "/heroscape.mse-game/chcg24/vydar.png",
+          "ullar": "/heroscape.mse-game/chcg24/ullar.png",
+          "einar": "/heroscape.mse-game/chcg24/einar.png",
+          "aquilla": "/heroscape.mse-game/chcg24/aquilla.png",
+          "valkrill": "/heroscape.mse-game/chcg24/valkrill.png"
+        },
+        "sourceExpr": {
+          "left": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 585 else if set.chcg24 = \"Include at bottom of text box\" then 208 else -1000 }",
+          "top": "{ if set.chcg24 = \"Do not include\" then -1000 else if set.chcg24 = \"Include in hitzone box\" then 388 else if set.chcg24 = \"Include at bottom of text box\" then 603 else -1000 }"
+        }
+      },
+      "disclaimer": {
+        "left": 5,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "author text": {
+        "left": 650,
+        "top": 490,
+        "width": 70,
+        "height": 120,
+        "alignment": null,
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 7,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "card type": {
+        "left": 0,
+        "top": 0,
+        "width": 727,
+        "height": 691,
+        "alignment": null,
+        "zIndex": -2,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "jandar": "cardblanks/jandar.jpg",
+          "ullar": "cardblanks/ullar.jpg",
+          "utgar": "cardblanks/utgar.jpg",
+          "einar": "cardblanks/einar.jpg",
+          "vydar": "cardblanks/vydar.jpg",
+          "aquilla": "cardblanks/aquilla.jpg",
+          "valkrill": "cardblanks/valkrill.jpg",
+          "custom": "cardblanks/custom.jpg"
+        }
+      },
+      "generallogo": {
+        "left": 210,
+        "top": 41,
+        "width": 51,
+        "height": 59,
+        "alignment": null,
+        "zIndex": null,
+        "font": null,
+        "mask": null,
+        "kind": "choice-image",
+        "choiceImages": {
+          "blank": "/heroscape.mse-game/gensymbols/hex.png",
+          "jandar": "/heroscape.mse-game/gensymbols/jandar.png",
+          "utgar": "/heroscape.mse-game/gensymbols/utgar.png",
+          "vydar": "/heroscape.mse-game/gensymbols/vydar.png",
+          "ullar": "/heroscape.mse-game/gensymbols/ullar.png",
+          "einar": "/heroscape.mse-game/gensymbols/einar.png",
+          "aquilla": "/heroscape.mse-game/gensymbols/aquilla.png",
+          "valkrill": "/heroscape.mse-game/gensymbols/valkrill.png",
+          "custom1": "/heroscape.mse-game/gensymbols/custom1.png",
+          "custom2": "/heroscape.mse-game/gensymbols/custom2.png",
+          "custom3": "/heroscape.mse-game/gensymbols/custom3.png",
+          "symbolcustom1": "script: symbol_variation(symbol: set.symbol1, variation: \"standard\")",
+          "symbolcustom2": "script: symbol_variation(symbol: set.symbol2, variation: \"standard\")",
+          "symbolcustom3": "script: symbol_variation(symbol: set.symbol3, variation: \"standard\")"
+        }
+      },
+      "name": {
+        "left": 159,
+        "top": 107,
+        "width": 156,
+        "height": 35,
+        "alignment": "middle center",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 15,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text",
+        "lineHeightSoft": 0.9,
+        "paddingBottom": 0
+      },
+      "planet": {
+        "left": 170,
+        "top": 495,
+        "width": 170,
+        "height": 20,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "bold",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "expansion": {
+        "left": 170,
+        "top": 515,
+        "width": 170,
+        "height": 20,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "collector number": {
+        "left": 170,
+        "top": 535,
+        "width": 170,
+        "height": 20,
+        "alignment": "middle center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 12,
+          "weight": "normal",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "general": {
+        "left": 7.5,
+        "top": 7.55,
+        "width": 90,
+        "height": 16.5,
+        "alignment": "center shrink-overflow",
+        "zIndex": 1,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 10.5,
+          "weight": "bold",
+          "color": "rgb(0,0,0)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "basicimage": {
+        "left": 20,
+        "top": 62,
+        "width": 690,
+        "height": 503,
+        "alignment": null,
+        "zIndex": -1,
+        "font": null,
+        "mask": "imagemask.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"no\" then 20 else -1000}"
+        }
+      },
+      "basicimagefogged": {
+        "left": 20,
+        "top": 62,
+        "width": 690,
+        "height": 503,
+        "alignment": null,
+        "zIndex": -1,
+        "font": null,
+        "mask": "imagemask_fogged.png",
+        "kind": "image",
+        "sourceExpr": {
+          "left": "{if styling.fog_image = \"yes\" then 20 else -1000}"
+        }
+      },
+      "bmove": {
+        "left": 500,
+        "top": 386,
+        "width": 52.2,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "brange": {
+        "left": 500,
+        "top": 434,
+        "width": 52.5,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "battack": {
+        "left": 500,
+        "top": 483,
+        "width": 52.5,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "bdefense": {
+        "left": 500,
+        "top": 531,
+        "width": 52.5,
+        "height": 30,
+        "alignment": "top center shrink-overflow",
+        "zIndex": 3,
+        "font": {
+          "family": "Arial",
+          "size": 21,
+          "weight": "bold",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "bmove ext": {
+        "left": 490,
+        "top": 412,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "brange ext": {
+        "left": 490,
+        "top": 461,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "battack ext": {
+        "left": 490,
+        "top": 510,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      },
+      "bdefense ext": {
+        "left": 490,
+        "top": 558,
+        "width": 75,
+        "height": 15,
+        "alignment": "middle center",
+        "zIndex": 2,
+        "font": {
+          "family": "Arial Narrow",
+          "size": 9,
+          "weight": "normal",
+          "color": "rgb(255,255,255)",
+          "scaleDownTo": null
+        },
+        "mask": null,
+        "kind": "text"
+      }
+    },
+    "masks": {
+      "image": {
+        "file": "classic/basic-sotm/imagemask.png",
+        "w": 690,
+        "h": 503,
+        "shownBox": [
+          3,
+          2,
+          684,
+          498
+        ],
+        "coverage": 0.48,
+        "usesAlpha": false
+      },
+      "imagefogged": {
+        "file": "classic/basic-sotm/imagemask_fogged.png",
+        "w": 690,
+        "h": 503,
+        "shownBox": [
+          3,
+          2,
+          684,
+          389
+        ],
+        "coverage": 0.446,
+        "usesAlpha": false
+      }
+    },
+    "hitzoneBlackBox": null,
+    "hitzoneAnalysis": null
+  }
+}
