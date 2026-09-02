@@ -255,10 +255,11 @@ export default function App() {
   }
 
   const hint = useMemo(() => {
+    if (tool === 'portrait' && side === 'basic') return 'Basic side: drag the figure to place it here · scroll or pinch to resize · the Master side keeps its own placement'
     if (tool === 'portrait') return 'Drag the figure to move it · scroll or pinch to resize · use the sliders for fine control'
     if (tool === 'hitzone') return 'Drag the silhouette to move it · drag the green dot to set the target point · scroll or pinch to resize'
     return 'Tip: pick a Photo or Hit zone section to move things directly on the card'
-  }, [tool])
+  }, [tool, side])
 
   if (!ready || !card) return <div className="loading">Loading Card Forge…</div>
 
@@ -344,6 +345,7 @@ export default function App() {
               card={card}
               update={update}
               side={side}
+              setSide={setSide}
               tool={tool}
               setTool={setTool}
               activeLayer={activeLayer}

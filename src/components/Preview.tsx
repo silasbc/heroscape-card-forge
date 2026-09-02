@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CardDesign, Side } from '../model'
+import { splitBasicPortrait } from '../model'
 import { cardUnits, ensureAssets, env, hzBoxFor, layerScaleFor, renderToCanvas } from '../render'
 import { hitZoneSlots } from '../render/hitzone'
 import { onImagesChanged } from '../images'
@@ -106,8 +107,11 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
     }
     const pointers = new Map([[e.pointerId, { x: e.clientX, y: e.clientY }]])
     if (tool === 'portrait') {
-      const key = side === 'basic' && !card.basicPortrait.sameAsMaster ? 'basicPortrait' : 'portrait'
-      const layer = card[key].layers.find((l) => l.id === activeLayer) ?? card[key].layers[card[key].layers.length - 1]
+      // moving the figure on the Basic side gives that side its own placement
+      if (side === 'basic' && card.basicPortrait.sameAsMaster) update((c) => splitBasicPortrait(c))
+      const key = side === 'basic' ? 'basicPortrait' : 'portrait'
+      const src = side === 'basic' && card.basicPortrait.sameAsMaster ? card.portrait : card[key]
+      const layer = src.layers.find((l) => l.id === activeLayer) ?? src.layers[src.layers.length - 1]
       if (!layer) return
       drag.current = { kind: 'layer', startX: p.x, startY: p.y, origX: layer.x, origY: layer.y, origScale: layer.scale, pointers, startDist: 0 }
     } else if (tool === 'hitzone') {
@@ -133,8 +137,8 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
 
   const currentScale = () => {
     if (tool === 'portrait') {
-      const key = side === 'basic' && !card.basicPortrait.sameAsMaster ? 'basicPortrait' : 'portrait'
-      const layer = card[key].layers.find((l) => l.id === activeLayer) ?? card[key].layers[card[key].layers.length - 1]
+      const src = side === 'basic' && !card.basicPortrait.sameAsMaster ? card.basicPortrait : card.portrait
+      const layer = src.layers.find((l) => l.id === activeLayer) ?? src.layers[src.layers.length - 1]
       return layer?.scale ?? 1
     }
     return card.hitZone.scale
@@ -143,8 +147,9 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
   const applyScale = (s: number) => {
     const clamped = Math.min(5, Math.max(0.05, s))
     if (tool === 'portrait') {
-      const key = side === 'basic' && !card.basicPortrait.sameAsMaster ? 'basicPortrait' : 'portrait'
-      update((c) => {
+      const key = side === 'basic' ? 'basicPortrait' : 'portrait'
+      update((c0) => {
+        const c = side === 'basic' ? splitBasicPortrait(c0) : c0
         const layers = c[key].layers
         const idx = layers.findIndex((l) => l.id === activeLayer)
         const i = idx >= 0 ? idx : layers.length - 1
@@ -174,8 +179,9 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
     const dy = p.y - d.startY
     if (d.kind === 'layer') {
       const k = layerScaleFor(card.style, side)
-      const key = side === 'basic' && !card.basicPortrait.sameAsMaster ? 'basicPortrait' : 'portrait'
-      update((c) => {
+      const key = side === 'basic' ? 'basicPortrait' : 'portrait'
+      update((c0) => {
+        const c = side === 'basic' ? splitBasicPortrait(c0) : c0
         const layers = c[key].layers
         const idx = layers.findIndex((l) => l.id === activeLayer)
         const i = idx >= 0 ? idx : layers.length - 1

@@ -2,7 +2,7 @@
 // 1000 x 940 unit space. Master side and Basic side. Positions were measured
 // from official 1575 x 1500 renders (1 unit = 1.465 px there).
 import type { CardDesign, Side, Portrait } from '../model'
-import { generalName } from '../model'
+import { generalName, statsFor } from '../model'
 import { CARD_H, CARD_W, OUTLINE, insetPolygon, polygonPath, type Pt } from '../geometry'
 import { FONT_BODY, FONT_COND, font } from '../fonts'
 import { drawSpaced, fitSingleLine, fitText, wrapText } from '../text'
@@ -547,11 +547,12 @@ function drawPlaque(ctx: CanvasRenderingContext2D, d: CardDesign, side: Side): v
   speckles(ctx, inner, { x0: 595, y0: top, x1: 799, y1: bottom, count: 350, color: '#1a1a1a', seed: 22, maxR: 1.3 })
 
   const b = AOA.bars
+  const st = statsFor(d, side)
   const rows: { key: 'move' | 'range' | 'attack' | 'defense'; label: string; value: number }[] = [
-    { key: 'move', label: 'MOVE', value: d.move },
-    { key: 'range', label: 'RANGE', value: d.range },
-    { key: 'attack', label: 'ATTACK', value: d.attack },
-    { key: 'defense', label: 'DEFENSE', value: d.defense },
+    { key: 'move', label: 'MOVE', value: st.move },
+    { key: 'range', label: 'RANGE', value: st.range },
+    { key: 'attack', label: 'ATTACK', value: st.attack },
+    { key: 'defense', label: 'DEFENSE', value: st.defense },
   ]
   const y0 = master ? b.y0 : AOA.basic.bars.y0
   const bh = master ? b.h : AOA.basic.bars.h

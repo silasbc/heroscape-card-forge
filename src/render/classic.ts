@@ -2,7 +2,7 @@
 // Magic Set Editor template with text, portrait and hit zone composited on top.
 // Coordinates are the template's native 728 x 691 pixel space.
 import type { CardDesign, Side, StyleId, Portrait } from '../model'
-import { generalName, isSquad } from '../model'
+import { generalName, isSquad, statsFor } from '../model'
 import layoutsJson from '../data/classicLayouts.json'
 import { FONT_BODY, FONT_COND, font } from '../fonts'
 import { drawSpaced, fitSingleLine, fitText, wrapLine } from '../text'
@@ -542,10 +542,11 @@ function drawBasicText(ctx: CanvasRenderingContext2D, d: CardDesign, L: Layout, 
     ctx.textAlign = 'center'
     ctx.fillText(String(v), f.left + f.width / 2, f.top + s * 0.86)
   }
-  stat('bmove', d.move)
-  stat('brange', d.range)
-  stat('battack', d.attack)
-  stat('bdefense', d.defense)
+  const st = statsFor(d, 'basic')
+  stat('bmove', st.move)
+  stat('brange', st.range)
+  stat('battack', st.attack)
+  stat('bdefense', st.defense)
   const ext = (k: string, txt: string) => {
     const f = F[k]
     if (!f) return
@@ -554,10 +555,10 @@ function drawBasicText(ctx: CanvasRenderingContext2D, d: CardDesign, L: Layout, 
     ctx.fillStyle = '#ffffff'
     drawSpaced(ctx, txt, f.left + f.width / 2, f.top + f.height / 2 + s * 0.35, 0.5, 'center')
   }
-  ext('bmove ext', d.move === 1 ? 'SPACE' : 'SPACES')
-  ext('brange ext', d.range === 1 ? 'SPACE' : 'SPACES')
-  ext('battack ext', d.attack === 1 ? 'DIE' : 'DICE')
-  ext('bdefense ext', d.defense === 1 ? 'DIE' : 'DICE')
+  ext('bmove ext', st.move === 1 ? 'SPACE' : 'SPACES')
+  ext('brange ext', st.range === 1 ? 'SPACE' : 'SPACES')
+  ext('battack ext', st.attack === 1 ? 'DIE' : 'DICE')
+  ext('bdefense ext', st.defense === 1 ? 'DIE' : 'DICE')
   if (d.footer.credit) {
     ctx.font = font(500, 8, FONT_COND)
     ctx.fillStyle = '#121212'

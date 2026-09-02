@@ -77,6 +77,13 @@ export interface Backdrop {
   imageScale: number
 }
 
+export interface BasicStats {
+  move: number
+  range: number
+  attack: number
+  defense: number
+}
+
 export interface Portrait {
   layers: PortraitLayer[]
   backdrop: Backdrop
@@ -138,6 +145,8 @@ export interface CardDesign {
   attack: number
   defense: number
   points: number
+  /** Basic-game values printed on the Basic side (null = same as Master) */
+  basicStats: BasicStats | null
   figuresInSquad: number
   powers: Power[]
   portrait: Portrait
@@ -192,6 +201,7 @@ export function newCard(partial: Partial<CardDesign> = {}): CardDesign {
     attack: 3,
     defense: 3,
     points: 80,
+    basicStats: null,
     figuresInSquad: 3,
     powers: [
       {
@@ -208,6 +218,26 @@ export function newCard(partial: Partial<CardDesign> = {}): CardDesign {
     createdAt: now,
     updatedAt: now,
     ...partial,
+  }
+}
+
+/** Stats to print on a given side. */
+export function statsFor(d: CardDesign, side: Side): BasicStats {
+  if (side === 'basic' && d.basicStats) return d.basicStats
+  return { move: d.move, range: d.range, attack: d.attack, defense: d.defense }
+}
+
+/** Give the Basic side its own copy of the Master photo so it can be placed separately. */
+export function splitBasicPortrait(d: CardDesign): CardDesign {
+  if (!d.basicPortrait.sameAsMaster) return d
+  return {
+    ...d,
+    basicPortrait: {
+      sameAsMaster: false,
+      overflow: d.portrait.overflow,
+      backdrop: { ...d.portrait.backdrop },
+      layers: d.portrait.layers.map((l) => ({ ...l })),
+    },
   }
 }
 
@@ -259,6 +289,14 @@ export function normalizeCard(raw: unknown): CardDesign {
       target: hz.target === null ? null : { ...defaultHitZone().target!, ...(hz.target ?? {}) },
     },
     footer: { ...base.footer, ...(r.footer ?? {}) },
+    basicStats: r.basicStats
+      ? {
+          move: Number(r.basicStats.move ?? 0),
+          range: Number(r.basicStats.range ?? 0),
+          attack: Number(r.basicStats.attack ?? 0),
+          defense: Number(r.basicStats.defense ?? 0),
+        }
+      : null,
     powers: Array.isArray(r.powers)
       ? r.powers.map((p) => ({ id: p.id || newId(), name: String(p.name ?? ''), text: String(p.text ?? '') }))
       : base.powers,

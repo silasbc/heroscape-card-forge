@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CardDesign, GeneralId, Side, SizeCategory, StyleId, UnitType } from '../model'
-import { GENERALS, SIZE_CATEGORIES, STYLES, UNIT_TYPES, isSquad } from '../model'
+import { GENERALS, SIZE_CATEGORIES, STYLES, UNIT_TYPES, isSquad, splitBasicPortrait } from '../model'
 import { PALETTES } from '../render/palette'
 import wordlists from '../data/wordlists.json'
 import type { Updater } from '../App'
@@ -14,6 +14,7 @@ interface Props {
   card: CardDesign
   update: Updater
   side: Side
+  setSide: (s: Side) => void
   tool: Tool
   setTool: (t: Tool) => void
   activeLayer: string | null
@@ -33,14 +34,21 @@ export function Editor(p: Props) {
   const [openSection, setOpenSection] = useState<string>('style')
   const openOnly = (name: string) => (open: boolean) => {
     setOpenSection(open ? name : '')
-    if (name === 'photo') p.setTool(open ? 'portrait' : 'none')
-    else if (name === 'hitzone') p.setTool(open ? 'hitzone' : 'none')
-    else p.setTool('none')
+    if (name === 'photo') {
+      p.setTool(open ? 'portrait' : 'none')
+      if (open) p.setSide('master')
+    } else if (name === 'hitzone') {
+      p.setTool(open ? 'hitzone' : 'none')
+      if (open) p.setSide('master')
+    } else if (name === 'basic') {
+      p.setTool(open ? 'portrait' : 'none')
+      if (open) p.setSide('basic')
+    } else p.setTool('none')
   }
 
   // keep the tool in sync when the section is switched away
   useEffect(() => {
-    if (openSection !== 'photo' && openSection !== 'hitzone' && p.tool !== 'none') p.setTool('none')
+    if (openSection !== 'photo' && openSection !== 'hitzone' && openSection !== 'basic' && p.tool !== 'none') p.setTool('none')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSection])
 
@@ -217,16 +225,65 @@ export function Editor(p: Props) {
         <HitZoneSection {...p} />
       </Section>
 
-      <Section title="Basic side" open={openSection === 'basic'} onToggle={openOnly('basic')}>
+      <Section title="Basic side" badge={card.basicStats ? 'own stats' : ''} open={openSection === 'basic'} onToggle={openOnly('basic')}>
+        <p className="muted tiny" style={{ margin: 0 }}>
+          The Basic side is the simplified game face: big art, no powers, and often different stat values. Everything here only affects that side.
+        </p>
+        <b style={{ fontSize: 13 }}>Photo</b>
         <label className="check">
           <input
             type="checkbox"
             checked={card.basicPortrait.sameAsMaster}
-            onChange={(e) => set('basicPortrait', { ...card.basicPortrait, sameAsMaster: e.target.checked })}
+            onChange={(e) =>
+              e.target.checked
+                ? set('basicPortrait', { ...card.basicPortrait, sameAsMaster: true })
+                : update((c) => splitBasicPortrait(c))
+            }
           />
-          Use the same figure photo as the Master side
+          Same photo and placement as the Master side
         </label>
-        {!card.basicPortrait.sameAsMaster && <PortraitSection {...p} which="basicPortrait" />}
+        {card.basicPortrait.sameAsMaster ? (
+          <p className="muted tiny" style={{ margin: 0 }}>
+            Drag the figure on the Basic side preview, or untick this, to place it separately from the Master side.
+          </p>
+        ) : (
+          <PortraitSection {...p} which="basicPortrait" />
+        )}
+        <b style={{ fontSize: 13 }}>Stats</b>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={!!card.basicStats}
+            onChange={(e) =>
+              set('basicStats', e.target.checked ? { move: card.move, range: card.range, attack: card.attack, defense: card.defense } : null)
+            }
+          />
+          Different stats on the Basic side
+        </label>
+        {card.basicStats && (
+          <div className="grid6">
+            {(
+              [
+                ['move', 'MOVE'],
+                ['range', 'RANGE'],
+                ['attack', 'ATTACK'],
+                ['defense', 'DEFENSE'],
+              ] as const
+            ).map(([k, label]) => (
+              <label key={k} className={'stat ' + k}>
+                <span>{label}</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={card.basicStats![k]}
+                  onChange={(e) => set('basicStats', { ...card.basicStats!, [k]: Number(e.target.value) })}
+                />
+              </label>
+            ))}
+          </div>
+        )}
+        <b style={{ fontSize: 13 }}>Collector block</b>
         <div className="grid3">
           <label className="field">
             <span>Homeworld</span>
