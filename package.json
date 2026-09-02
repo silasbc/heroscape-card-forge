@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "deploy": "vite build && gh-pages -d dist -t",
+    "deploy": "vite build && gh-pages -d dist -t -u \"Silas Cobb <silas@cobbenterprises.com>\"",
     "typecheck": "tsc -b"
   },
   "dependencies": {
