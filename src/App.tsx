@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CardDesign, Side } from './model'
 import { applyPreset, newCard, newId, type Preset } from './model'
-import { deleteCard, garbageCollectImages, imageIdsFromCards, listCards, requestPersistence, saveCard } from './storage'
+import { deleteCard, garbageCollectImages, imageIdsFromCards, listCards, onStorageWarning, requestPersistence, saveCard } from './storage'
 import { loadFonts } from './fonts'
 import { addImage } from './images'
 import { downloadBlob, exportJson, exportPdf, exportPng, importBundle, parseImport, slug } from './export'
@@ -36,6 +36,7 @@ export default function App() {
   const { toast, show } = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
   const [updateReady, setUpdateReady] = useState(false)
+  useEffect(() => onStorageWarning((msg) => show(msg, 9000)), [show])
 
   // notice newer deploys (index.html can be cached for a few minutes)
   useEffect(() => {
@@ -423,8 +424,13 @@ async function makeDemoCard(): Promise<CardDesign> {
     footer: { homeworld: 'Feylund', setName: 'Card Forge example', collection: '1', credit: '' },
   })
   try {
-    const res = await fetch(import.meta.env.BASE_URL + 'sample-figure.png')
-    if (res.ok) {
+    let res = await fetch(import.meta.env.BASE_URL + 'sample-figure.png').catch(() => null)
+    if (!res || !res.ok) {
+      // the first visit may be mid-reload while the service worker installs
+      await new Promise((r) => setTimeout(r, 1500))
+      res = await fetch(import.meta.env.BASE_URL + 'sample-figure.png').catch(() => null)
+    }
+    if (res && res.ok) {
       const blob = await res.blob()
       const id = await addImage(blob)
       c.portrait.layers.push({ id: newId(), imageId: id, x: -8, y: 72, scale: 0.93, flip: false, rotation: 0 })

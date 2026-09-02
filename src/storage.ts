@@ -32,12 +32,58 @@ export async function deleteCard(id: string): Promise<void> {
   await del(id, cardStore)
 }
 
+interface StoredBuffer {
+  __buffer: true
+  type: string
+  data: ArrayBuffer
+}
+
+/** Images that could not be persisted stay usable for this session. */
+const memoryImages = new Map<string, Blob>()
+let storageWarned = false
+const storageListeners = new Set<(msg: string) => void>()
+export function onStorageWarning(fn: (msg: string) => void): () => void {
+  storageListeners.add(fn)
+  return () => storageListeners.delete(fn)
+}
+function warnStorage(msg: string) {
+  if (storageWarned) return
+  storageWarned = true
+  storageListeners.forEach((fn) => fn(msg))
+}
+
+function describe(err: unknown): string {
+  if (!err) return 'unknown storage error'
+  const e = err as { name?: string; message?: string }
+  return [e.name, e.message].filter(Boolean).join(': ') || String(err)
+}
+
 export async function putImage(id: string, blob: Blob): Promise<void> {
-  await set(id, blob, imageStore)
+  memoryImages.set(id, blob)
+  try {
+    await set(id, blob, imageStore)
+    return
+  } catch (err) {
+    console.warn('storing Blob failed, retrying as buffer', describe(err))
+  }
+  try {
+    const stored: StoredBuffer = { __buffer: true, type: blob.type, data: await blob.arrayBuffer() }
+    await set(id, stored, imageStore)
+  } catch (err) {
+    console.warn('storing image buffer failed', describe(err))
+    warnStorage('This browser would not save the photo to its storage, so it will only last for this visit. Download the card as PNG to keep it.')
+  }
 }
 
 export async function getImage(id: string): Promise<Blob | undefined> {
-  return get<Blob>(id, imageStore)
+  try {
+    const v = await get<Blob | StoredBuffer>(id, imageStore)
+    if (v instanceof Blob) return v
+    if (v && (v as StoredBuffer).__buffer) return new Blob([(v as StoredBuffer).data], { type: (v as StoredBuffer).type })
+  } catch (err) {
+    console.warn('reading image failed', describe(err))
+  }
+  return memoryImages.get(id)
 }
 
 export async function deleteImage(id: string): Promise<void> {

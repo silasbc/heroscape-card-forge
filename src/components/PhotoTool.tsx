@@ -76,9 +76,10 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
       ctx.drawImage(img, 0, 0, c.width, c.height)
       setSrc(c)
     } catch (err) {
+      const e = err as { message?: string } | null
       setError(
         'Could not read that image (' +
-          (err as Error).message +
+          (e?.message || 'unknown error') +
           '). JPG, PNG, WebP and HEIC photos work; if it came from another app, try saving it as a JPG first.',
       )
     } finally {
@@ -178,7 +179,8 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
       const id = await addImage(blob)
       onDone(id, { alsoHitZone })
     } catch (err) {
-      setError('Could not save image: ' + (err as Error).message)
+      const e = err as { name?: string; message?: string } | null
+      setError('Could not add the photo (' + ([e?.name, e?.message].filter(Boolean).join(': ') || 'unknown error') + '). Try again, or use a smaller photo.')
       setBusy(null)
     }
   }
