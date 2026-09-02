@@ -27,9 +27,28 @@ function devSave(): Plugin {
   }
 }
 
+/** Writes dist/version.json so the running app can notice a newer deploy. */
+function versionFile(buildId: string): Plugin {
+  return {
+    name: 'version-file',
+    apply: 'build',
+    closeBundle() {
+      const dir = path.resolve(process.cwd(), 'dist')
+      fs.mkdirSync(dir, { recursive: true })
+      fs.writeFileSync(path.join(dir, 'version.json'), JSON.stringify({ build: buildId }))
+    },
+  }
+}
+
+const pkg = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8')) as { version: string }
+const BUILD_ID = `${pkg.version}+${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}`
+
 // Deployed at https://silasbc.github.io/heroscape-card-forge/
 export default defineConfig({
-  plugins: [react(), devSave()],
+  plugins: [react(), devSave(), versionFile(BUILD_ID)],
+  define: {
+    __BUILD_ID__: JSON.stringify(BUILD_ID),
+  },
   base: '/heroscape-card-forge/',
   build: {
     target: 'es2022',

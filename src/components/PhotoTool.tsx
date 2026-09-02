@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { addImage, blobToImage, canvasToBlob, normalizeUpload } from '../images'
+import { addImage, canvasToBlob, decodeUpload } from '../images'
 import { imageDataToCanvas, imageToImageData, keyBackground, refineAlpha, trimTransparent } from '../cutout/whitekey'
 import { aiAvailable, aiCutout, type CutoutProgress, type ModelKey } from '../cutout/ai'
 
@@ -26,8 +26,9 @@ const TITLES: Record<PhotoPurpose, string> = {
 
 export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
   const isCutoutPurpose = purpose === 'portrait' || purpose === 'basicPortrait' || purpose === 'hitzone' || purpose === 'emblem'
-  const [src, setSrc] = useState<HTMLImageElement | null>(null)
-  const [srcUrl, setSrcUrl] = useState<string | null>(null)
+  const [src, setSrc] = useState<HTMLCanvasElement | null>(null)
+  const [reading, setReading] = useState(false)
+  const origRef = useRef<HTMLCanvasElement>(null)
   const [method, setMethod] = useState<Method>(isCutoutPurpose ? (aiAvailable() ? 'ai' : 'key') : 'none')
   const [model, setModel] = useState<ModelKey>('isnet')
   const [raw, setRaw] = useState<ImageData | null>(null) // cutout before refinement
@@ -43,11 +44,6 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
   const resultRef = useRef<HTMLCanvasElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const refined = useRef<ImageData | null>(null)
-
-  useEffect(() => () => {
-    if (srcUrl) URL.revokeObjectURL(srcUrl)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     if (initialFile) void pickFile(initialFile)
@@ -66,22 +62,39 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
     if (!f) return
     setError(null)
     setRaw(null)
+    setReading(true)
     try {
-      const blob = await normalizeUpload(f, 2400)
-      const img = await blobToImage(blob)
-      setSrcUrl((old) => {
-        if (old) URL.revokeObjectURL(old)
-        return URL.createObjectURL(blob)
-      })
-      setSrc(img)
+      const { img } = await decodeUpload(f)
+      // downscale once into a canvas; every later step reads from it directly
+      const maxSide = 2400
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight))
+      const c = document.createElement('canvas')
+      c.width = Math.max(1, Math.round(img.naturalWidth * scale))
+      c.height = Math.max(1, Math.round(img.naturalHeight * scale))
+      const ctx = c.getContext('2d')!
+      ctx.imageSmoothingQuality = 'high'
+      ctx.drawImage(img, 0, 0, c.width, c.height)
+      setSrc(c)
     } catch (err) {
       setError(
         'Could not read that image (' +
           (err as Error).message +
           '). JPG, PNG, WebP and HEIC photos work; if it came from another app, try saving it as a JPG first.',
       )
+    } finally {
+      setReading(false)
     }
   }
+
+  // original preview
+  useEffect(() => {
+    const c = origRef.current
+    if (!c || !src) return
+    const s = Math.min(1, 520 / Math.max(src.width, src.height))
+    c.width = Math.max(1, Math.round(src.width * s))
+    c.height = Math.max(1, Math.round(src.height * s))
+    c.getContext('2d')!.drawImage(src, 0, 0, c.width, c.height)
+  }, [src])
 
   // run the chosen method whenever inputs change
   useEffect(() => {
@@ -182,8 +195,15 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
         <div className="body">
           {!src ? (
             <>
+              {reading && (
+                <div className="statusLine">
+                  <span className="spinner" /> Reading photo…
+                </div>
+              )}
+              {error && <div style={{ color: '#ff8a8a' }}>{error}</div>}
               <div
                 className={'drop' + (over ? ' over' : '')}
+                style={{ opacity: reading ? 0.4 : 1, pointerEvents: reading ? 'none' : 'auto' }}
                 onClick={() => openPicker(false)}
                 onDragOver={(e) => {
                   e.preventDefault()
@@ -248,13 +268,23 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
                   )}
                 </div>
               )}
+              {busy && (
+                <div className="statusLine">
+                  <span className="spinner" /> {busy}
+                  {progress !== null && (
+                    <div className="progress" style={{ flex: 1, minWidth: 80 }}>
+                      <i style={{ width: `${progress}%` }} />
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="photoGrid">
                 <div>
                   <div className="muted tiny" style={{ marginBottom: 4 }}>
                     Original
                   </div>
                   <div className="checker" style={{ height: 300 }}>
-                    {srcUrl && <img src={srcUrl} alt="" />}
+                    <canvas ref={origRef} />
                   </div>
                   <div className="row" style={{ marginTop: 8 }}>
                     <button className="btn small" onClick={() => setSrc(null)}>

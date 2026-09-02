@@ -35,6 +35,32 @@ export default function App() {
   const [menu, setMenu] = useState(false)
   const { toast, show } = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
+  const [updateReady, setUpdateReady] = useState(false)
+
+  // notice newer deploys (index.html can be cached for a few minutes)
+  useEffect(() => {
+    if (import.meta.env.DEV) return
+    let stop = false
+    const check = async () => {
+      try {
+        const r = await fetch(`${import.meta.env.BASE_URL}version.json?_=${Date.now()}`, { cache: 'no-store' })
+        if (!r.ok) return
+        const v = (await r.json()) as { build?: string }
+        if (!stop && v.build && v.build !== __BUILD_ID__) setUpdateReady(true)
+      } catch {
+        /* offline */
+      }
+    }
+    void check()
+    const id = window.setInterval(check, 5 * 60 * 1000)
+    const onVis = () => document.visibilityState === 'visible' && void check()
+    document.addEventListener('visibilitychange', onVis)
+    return () => {
+      stop = true
+      window.clearInterval(id)
+      document.removeEventListener('visibilitychange', onVis)
+    }
+  }, [])
 
   // boot
   useEffect(() => {
@@ -242,6 +268,7 @@ export default function App() {
           <img src={import.meta.env.BASE_URL + 'favicon.svg'} alt="" />
           <h1>
             Card Forge <small>Heroscape army card maker</small>
+            <span className="version" title="App version">v{__BUILD_ID__.split('+')[0]}</span>
           </h1>
         </div>
         <div className="seg">
@@ -352,6 +379,12 @@ export default function App() {
       {print && <PrintDialog cards={cards} current={card} onClose={() => setPrint(false)} />}
       {presets && <PresetPicker onPick={applyPresetToCard} onClose={() => setPresets(false)} />}
       <Toast toast={toast} />
+      {updateReady && (
+        <div className="updateBar">
+          A newer version of Card Forge is available.
+          <button onClick={() => window.location.reload()}>Reload</button>
+        </div>
+      )}
     </div>
   )
 }
