@@ -12,7 +12,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "heic2any": "^0.0.4",
+    "heic-to": "^1.5.2",
     "idb-keyval": "^6.3.0",
     "jspdf": "^4.2.1",
     "onnxruntime-web": "^1.29.0",

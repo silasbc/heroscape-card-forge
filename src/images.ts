@@ -38,25 +38,82 @@ export function blobToImage(blob: Blob): Promise<HTMLImageElement> {
   })
 }
 
-function looksLikeHeic(file: Blob): boolean {
+export function looksLikeHeic(file: Blob): boolean {
   const name = ((file as File).name ?? '').toLowerCase()
   return /heic|heif/.test(file.type) || /\.(heic|heif)$/.test(name)
 }
 
+export interface Decoded {
+  source: CanvasImageSource
+  width: number
+  height: number
+  /** the original file when the browser decoded it directly */
+  original?: Blob
+}
+
 /** Decode any upload, converting iPhone HEIC/HEIF photos in the browser when the browser cannot. */
-export async function decodeUpload(file: Blob): Promise<{ img: HTMLImageElement; blob: Blob }> {
+export async function decodeUpload(file: Blob): Promise<Decoded> {
   try {
-    return { img: await blobToImage(file), blob: file }
+    const img = await blobToImage(file)
+    return { source: img, width: img.naturalWidth, height: img.naturalHeight, original: file }
   } catch (err) {
-    // Chrome and Firefox cannot decode HEIC; fall back to a WASM decoder for
-    // anything that is HEIC-like or of unknown type.
+    // Chrome, Edge and Firefox cannot decode HEIC; use a WASM build of libheif
+    // for anything HEIC-like or of unknown type.
     if (!looksLikeHeic(file) && file.type && file.type !== 'application/octet-stream') throw err
-    const mod = await import('heic2any')
-    const heic2any = mod.default as (o: { blob: Blob; toType: string; quality?: number }) => Promise<Blob | Blob[]>
-    const out = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
-    const jpeg = Array.isArray(out) ? out[0] : out
-    return { img: await blobToImage(jpeg), blob: jpeg }
+    const bitmap = await convertHeic(file)
+    return { source: bitmap, width: bitmap.width, height: bitmap.height }
   }
+}
+
+const HEIC_TIMEOUT_MS = 120_000
+
+/** Run the HEIC decoder in a throwaway worker with a timeout; fall back to the main thread. */
+async function convertHeic(file: Blob): Promise<ImageBitmap> {
+  if (typeof Worker !== 'undefined') {
+    try {
+      return await convertHeicInWorker(file)
+    } catch (err) {
+      const msg = (err as Error)?.message || String(err)
+      if (!/worker unavailable/.test(msg)) throw new Error('HEIC conversion failed: ' + msg)
+    }
+  }
+  const { heicTo } = await import('heic-to')
+  try {
+    return await heicTo({ blob: file, type: 'bitmap' })
+  } catch (err) {
+    const e = err as { message?: string } | null
+    throw new Error('HEIC conversion failed: ' + (e?.message || String(err)))
+  }
+}
+
+function convertHeicInWorker(file: Blob): Promise<ImageBitmap> {
+  return new Promise((resolve, reject) => {
+    let worker: Worker
+    try {
+      worker = new Worker(new URL('./cutout/heicWorker.ts', import.meta.url), { type: 'module' })
+    } catch {
+      reject(new Error('worker unavailable'))
+      return
+    }
+    const id = Date.now()
+    const timer = window.setTimeout(() => {
+      worker.terminate()
+      reject(new Error('the photo took too long to convert; try exporting it as a JPG'))
+    }, HEIC_TIMEOUT_MS)
+    worker.onmessage = (ev: MessageEvent<{ id: number; bitmap?: ImageBitmap; error?: string }>) => {
+      if (ev.data.id !== id) return
+      window.clearTimeout(timer)
+      worker.terminate()
+      if (ev.data.bitmap) resolve(ev.data.bitmap)
+      else reject(new Error(ev.data.error || 'unknown decoder error'))
+    }
+    worker.onerror = (e) => {
+      window.clearTimeout(timer)
+      worker.terminate()
+      reject(new Error('worker unavailable: ' + (e.message || 'failed to start')))
+    }
+    worker.postMessage({ id, blob: file })
+  })
 }
 
 export function urlToImage(url: string): Promise<HTMLImageElement> {
@@ -157,14 +214,14 @@ export function loadAsset(path: string): Promise<HTMLImageElement | null> {
 
 /** Downscale very large uploads so previews stay snappy and exports stay sane. */
 export async function normalizeUpload(file: Blob, maxSide = 2400): Promise<Blob> {
-  const { img, blob } = await decodeUpload(file)
-  const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight))
-  if (scale === 1 && blob.type === 'image/png') return blob
+  const d = await decodeUpload(file)
+  const scale = Math.min(1, maxSide / Math.max(d.width, d.height))
+  if (scale === 1 && d.original && d.original.type === 'image/png') return d.original
   const c = document.createElement('canvas')
-  c.width = Math.round(img.naturalWidth * scale)
-  c.height = Math.round(img.naturalHeight * scale)
+  c.width = Math.max(1, Math.round(d.width * scale))
+  c.height = Math.max(1, Math.round(d.height * scale))
   const ctx = c.getContext('2d')!
   ctx.imageSmoothingQuality = 'high'
-  ctx.drawImage(img, 0, 0, c.width, c.height)
+  ctx.drawImage(d.source, 0, 0, c.width, c.height)
   return canvasToBlob(c, 'image/png')
 }

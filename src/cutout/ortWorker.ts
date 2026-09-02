@@ -64,6 +64,9 @@ let webgpuOk: boolean | null = null
 
 // The WebAssembly runtime is bundled with the app (same origin), so no wasmPaths override.
 void ORT_VERSION
+// Without cross-origin isolation there is no SharedArrayBuffer; stay single-threaded
+// rather than letting the threaded build misbehave (seen as OOB memory errors in WebKit).
+if (!(self as unknown as { crossOriginIsolated?: boolean }).crossOriginIsolated) ort.env.wasm.numThreads = 1
 
 function post(msg: unknown, transfer?: Transferable[]) {
   ;(self as unknown as Worker).postMessage(msg, transfer ?? [])

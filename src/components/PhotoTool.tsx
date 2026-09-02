@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { addImage, canvasToBlob, decodeUpload } from '../images'
+import { addImage, canvasToBlob, decodeUpload, looksLikeHeic } from '../images'
 import { imageDataToCanvas, imageToImageData, keyBackground, refineAlpha, trimTransparent } from '../cutout/whitekey'
 import { aiAvailable, aiCutout, type CutoutProgress, type ModelKey } from '../cutout/ai'
 
@@ -27,7 +27,7 @@ const TITLES: Record<PhotoPurpose, string> = {
 export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
   const isCutoutPurpose = purpose === 'portrait' || purpose === 'basicPortrait' || purpose === 'hitzone' || purpose === 'emblem'
   const [src, setSrc] = useState<HTMLCanvasElement | null>(null)
-  const [reading, setReading] = useState(false)
+  const [reading, setReading] = useState<string | null>(null)
   const origRef = useRef<HTMLCanvasElement>(null)
   const [method, setMethod] = useState<Method>(isCutoutPurpose ? (aiAvailable() ? 'ai' : 'key') : 'none')
   const [model, setModel] = useState<ModelKey>('isnet')
@@ -62,18 +62,19 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
     if (!f) return
     setError(null)
     setRaw(null)
-    setReading(true)
+    setReading(looksLikeHeic(f) ? 'Converting iPhone photo (HEIC)… this can take a few seconds' : 'Reading photo…')
     try {
-      const { img } = await decodeUpload(f)
+      const d = await decodeUpload(f)
       // downscale once into a canvas; every later step reads from it directly
       const maxSide = 2400
-      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight))
+      const scale = Math.min(1, maxSide / Math.max(d.width, d.height))
       const c = document.createElement('canvas')
-      c.width = Math.max(1, Math.round(img.naturalWidth * scale))
-      c.height = Math.max(1, Math.round(img.naturalHeight * scale))
+      c.width = Math.max(1, Math.round(d.width * scale))
+      c.height = Math.max(1, Math.round(d.height * scale))
       const ctx = c.getContext('2d')!
       ctx.imageSmoothingQuality = 'high'
-      ctx.drawImage(img, 0, 0, c.width, c.height)
+      ctx.drawImage(d.source, 0, 0, c.width, c.height)
+      if ('close' in d.source && typeof (d.source as ImageBitmap).close === 'function') (d.source as ImageBitmap).close()
       setSrc(c)
     } catch (err) {
       const e = err as { message?: string } | null
@@ -83,7 +84,7 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
           '). JPG, PNG, WebP and HEIC photos work; if it came from another app, try saving it as a JPG first.',
       )
     } finally {
-      setReading(false)
+      setReading(null)
     }
   }
 
@@ -199,7 +200,7 @@ export function PhotoTool({ purpose, initialFile, onClose, onDone }: Props) {
             <>
               {reading && (
                 <div className="statusLine">
-                  <span className="spinner" /> Reading photo…
+                  <span className="spinner" /> {reading}
                 </div>
               )}
               {error && <div style={{ color: '#ff8a8a' }}>{error}</div>}
