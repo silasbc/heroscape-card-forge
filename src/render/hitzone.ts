@@ -31,7 +31,7 @@ export function hitZoneSlots(d: CardDesign, sils: (Silhouette | undefined)[], hz
     const w = aspect * h
     return [{ x: hz.cx + ox - w / 2, y: hz.cy + oy - h / 2, w, h }]
   }
-  const cols = n === 2 ? 2 : n === 3 ? 3 : 2
+  const cols = n <= 2 ? n : n === 3 ? 3 : n <= 4 ? 2 : 3
   const rows = Math.ceil(n / cols)
   const cellW = (hz.w * 0.95) / cols
   const cellH = (hz.h * 0.82) / rows
@@ -72,15 +72,16 @@ export function drawSilhouettes(ctx: CanvasRenderingContext2D, d: CardDesign, en
       ctx.translate(-(slot.x + slot.w / 2), 0)
     }
     ctx.drawImage(env.tinted(sil, STAT_COLORS.hitZoneRed), 0, 0, sw, srcH, slot.x, slot.y, slot.w, slot.h)
-    if (i === 0 && d.hitZone.paintImageId) {
-      const paint = env.img(d.hitZone.paintImageId)
+    const item = d.hitZone.items[i]
+    if (item?.paintImageId) {
+      const paint = env.img(item.paintImageId)
       if (paint) {
         ctx.drawImage(env.maskedPaint(sil, paint, STAT_COLORS.hitZoneGray), 0, 0, sw, srcH, slot.x, slot.y, slot.w, slot.h)
       }
     }
     ctx.restore()
-    if (i === 0 && d.hitZone.target) {
-      const t = d.hitZone.target
+    if (item?.target) {
+      const t = item.target
       const tx = d.hitZone.flip ? slot.x + slot.w * (1 - t.x) : slot.x + slot.w * t.x
       const ty = slot.y + slot.h * t.y
       const r = t.r * (hz.h / 304)

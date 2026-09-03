@@ -100,15 +100,18 @@ export interface TargetPoint {
 
 export interface HitZoneItem {
   imageId: string
+  /** green line-of-sight target point for this figure (null = hidden) */
+  target: TargetPoint | null
+  /** painted "cannot be targeted" (grey) mask in this silhouette's source pixel grid */
+  paintImageId?: string
 }
 
 export interface HitZone {
   /** silhouettes shown in the box (one per squad figure, or a single hero) */
   items: HitZoneItem[]
-  /** painted "cannot be targeted" (grey) mask, same pixel grid as the first silhouette source */
+  /** legacy single-figure fields (migrated into items[0]) */
   paintImageId?: string
-  /** green line-of-sight target point (null = hidden) */
-  target: TargetPoint | null
+  target?: TargetPoint | null
   x: number
   y: number
   /** silhouette height as a fraction of the panel height */
@@ -167,10 +170,17 @@ export function defaultBackdrop(): Backdrop {
   return { kind: 'general', color: '#7b8fa6', imageX: 0, imageY: 0, imageScale: 1 }
 }
 
+export function defaultTarget(): TargetPoint {
+  return { x: 0.5, y: 0.12, r: 4.5 }
+}
+
+export function newHitZoneItem(imageId: string, target: TargetPoint | null = defaultTarget()): HitZoneItem {
+  return { imageId, target: target ? { ...target } : null }
+}
+
 export function defaultHitZone(): HitZone {
   return {
     items: [],
-    target: { x: 0.5, y: 0.12, r: 4.5 },
     x: 0,
     y: 0,
     scale: 0.78,
@@ -257,7 +267,10 @@ export function imageIdsOf(d: CardDesign): string[] {
   for (const l of d.basicPortrait.layers) ids.add(l.imageId)
   if (d.portrait.backdrop.imageId) ids.add(d.portrait.backdrop.imageId)
   if (d.basicPortrait.backdrop.imageId) ids.add(d.basicPortrait.backdrop.imageId)
-  for (const it of d.hitZone.items) ids.add(it.imageId)
+  for (const it of d.hitZone.items) {
+    ids.add(it.imageId)
+    if (it.paintImageId) ids.add(it.paintImageId)
+  }
   if (d.hitZone.paintImageId) ids.add(d.hitZone.paintImageId)
   if (d.customGeneral.emblemImageId) ids.add(d.customGeneral.emblemImageId)
   return [...ids]
@@ -268,11 +281,24 @@ export function normalizeCard(raw: unknown): CardDesign {
   const base = newCard()
   const r = (raw ?? {}) as Partial<CardDesign> & Record<string, unknown>
   const hz = (r.hitZone ?? {}) as Partial<HitZone> & { imageId?: string; mode?: string; dots?: unknown }
-  const items: HitZoneItem[] = Array.isArray(hz.items)
-    ? hz.items.filter((i) => i && i.imageId).map((i) => ({ imageId: String(i.imageId) }))
+  const legacyTarget: TargetPoint | null = hz.target === null ? null : { ...defaultTarget(), ...(hz.target ?? {}) }
+  const rawItems: Partial<HitZoneItem>[] = Array.isArray(hz.items)
+    ? hz.items.filter((i) => i && i.imageId)
     : hz.imageId
       ? [{ imageId: String(hz.imageId) }]
       : []
+  const items: HitZoneItem[] = rawItems.map((i, idx) => ({
+    imageId: String(i.imageId),
+    target:
+      i.target === null
+        ? null
+        : i.target
+          ? { ...defaultTarget(), ...i.target }
+          : idx === 0
+            ? legacyTarget
+            : defaultTarget(),
+    paintImageId: i.paintImageId ?? (idx === 0 ? hz.paintImageId : undefined),
+  }))
   const d: CardDesign = {
     ...base,
     ...r,
@@ -286,7 +312,8 @@ export function normalizeCard(raw: unknown): CardDesign {
       ...defaultHitZone(),
       ...hz,
       items,
-      target: hz.target === null ? null : { ...defaultHitZone().target!, ...(hz.target ?? {}) },
+      paintImageId: undefined,
+      target: undefined,
     },
     footer: { ...base.footer, ...(r.footer ?? {}) },
     basicStats: r.basicStats

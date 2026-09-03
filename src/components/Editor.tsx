@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CardDesign, GeneralId, Side, SizeCategory, StyleId, UnitType } from '../model'
-import { GENERALS, SIZE_CATEGORIES, STYLES, UNIT_TYPES, isSquad, splitBasicPortrait } from '../model'
+import { GENERALS, SIZE_CATEGORIES, STYLES, UNIT_TYPES, defaultTarget, isSquad, newHitZoneItem, splitBasicPortrait } from '../model'
 import { PALETTES } from '../render/palette'
 import wordlists from '../data/wordlists.json'
 import type { Updater } from '../App'
@@ -447,15 +447,27 @@ function HitZoneSection(p: Props) {
   const hz = card.hitZone
   const setHz = (patch: Partial<typeof hz>) => update((c) => ({ ...c, hitZone: { ...c.hitZone, ...patch } }))
   const figures = card.portrait.layers
+  const squad = isSquad(card)
+  const wanted = squad ? Math.max(1, card.figuresInSquad) : 1
+  const anyTarget = hz.items.some((it) => it.target)
+  const dotSize = hz.items.find((it) => it.target)?.target?.r ?? 4.5
+  const setAllTargets = (on: boolean) => setHz({ items: hz.items.map((it) => ({ ...it, target: on ? { ...(it.target ?? defaultTarget()), r: dotSize } : null })) })
+  const setDotSize = (r: number) => setHz({ items: hz.items.map((it) => ({ ...it, target: it.target ? { ...it.target, r } : it.target })) })
+  const matchSquad = () => {
+    if (!hz.items.length) return
+    const items = hz.items.slice(0, wanted)
+    while (items.length < wanted) items.push(newHitZoneItem(items[items.length - 1].imageId))
+    setHz({ items })
+  }
   return (
     <>
       <p className="muted tiny" style={{ margin: 0 }}>
-        The black box shows the figure's silhouette: <b style={{ color: '#ff5a5a' }}>red</b> is the hit zone, <b style={{ color: '#bbb' }}>grey</b> parts cannot be targeted (wings, weapons),
-        and the <b style={{ color: '#7ac143' }}>green dot</b> is the Target Point that line of sight is measured from.
+        The black box shows each figure's silhouette: <b style={{ color: '#ff5a5a' }}>red</b> is the hit zone, <b style={{ color: '#bbb' }}>grey</b> parts cannot be targeted (wings, weapons),
+        and each <b style={{ color: '#7ac143' }}>green dot</b> is that figure's Target Point that line of sight is measured from. Squads show one silhouette and one dot per figure.
       </p>
       <div className="row">
         {figures.length > 0 && (
-          <button className="btn" onClick={() => setHz({ items: figures.map((l) => ({ imageId: l.imageId })) })}>
+          <button className="btn" onClick={() => setHz({ items: figures.map((l) => newHitZoneItem(l.imageId)) })}>
             Use figure photo{figures.length > 1 ? 's' : ''}
           </button>
         )}
@@ -463,26 +475,56 @@ function HitZoneSection(p: Props) {
           + Upload another cutout
         </button>
         {hz.items.length > 0 && (
-          <button className="btn small" onClick={() => setHz({ items: [], paintImageId: undefined })}>
+          <button className="btn small" onClick={() => setHz({ items: [] })}>
             Clear
           </button>
         )}
       </div>
       {hz.items.length > 0 && (
         <>
+          {squad && hz.items.length !== wanted && (
+            <div className="row">
+              <button className="btn" onClick={matchSquad}>
+                Show {wanted} silhouettes (match squad size)
+              </button>
+              <span className="muted tiny">
+                Currently {hz.items.length}. The same cutout is repeated when you have fewer photos than figures.
+              </span>
+            </div>
+          )}
           <div className="row">
             <button className="btn primary" onClick={p.openHitZone}>
-              Paint grey parts & set target…
+              Paint grey parts & set target dots…
             </button>
             <label className="check">
-              <input type="checkbox" checked={!!hz.target} onChange={(e) => setHz({ target: e.target.checked ? { x: 0.5, y: 0.12, r: 4.5 } : null })} />
-              Show target dot
+              <input type="checkbox" checked={anyTarget} onChange={(e) => setAllTargets(e.target.checked)} />
+              Show target dot{hz.items.length > 1 ? 's' : ''}
             </label>
             <label className="check">
               <input type="checkbox" checked={hz.flip} onChange={(e) => setHz({ flip: e.target.checked })} />
               Flip
             </label>
           </div>
+          {hz.items.length > 1 && (
+            <div className="row" style={{ gap: 6 }}>
+              {hz.items.map((it, i) => {
+                const img = getSync(it.imageId)
+                return (
+                  <div key={i} className="layer" style={{ padding: 4, cursor: 'default' }} title={`Figure ${i + 1}`}>
+                    {img ? <img src={img.src} alt="" style={{ width: 30, height: 30 }} /> : <span style={{ width: 30, height: 30 }} />}
+                    <span className="tiny">{i + 1}</span>
+                    <button
+                      className="iconbtn"
+                      title="Remove this silhouette"
+                      onClick={() => setHz({ items: hz.items.filter((_, j) => j !== i) })}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
           <div className="grid2">
             <label className="field">
               <span>
@@ -504,16 +546,16 @@ function HitZoneSection(p: Props) {
             </label>
             <label className="field">
               <span>
-                Target dot size <b>{hz.target?.r ?? 0}</b>
+                Target dot size <b>{dotSize}</b>
               </span>
-              <input type="range" min={2} max={10} step={0.5} value={hz.target?.r ?? 4.5} disabled={!hz.target} onChange={(e) => setHz({ target: { ...(hz.target ?? { x: 0.5, y: 0.12 }), r: Number(e.target.value) } })} />
+              <input type="range" min={2} max={10} step={0.5} value={dotSize} disabled={!anyTarget} onChange={(e) => setDotSize(Number(e.target.value))} />
             </label>
           </div>
           <div className="row">
             <button className="btn small" onClick={() => setHz({ x: 0, y: 0 })}>
               Centre
             </button>
-            {hz.items.length > 1 && <span className="muted tiny">Squads: each silhouette is placed automatically in a grid, like the official cards.</span>}
+            {hz.items.length > 1 && <span className="muted tiny">Silhouettes are laid out in a grid like the official squad cards. Drag any green dot on the card to move it.</span>}
           </div>
         </>
       )}

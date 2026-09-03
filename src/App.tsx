@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CardDesign, Side } from './model'
-import { applyPreset, newCard, newId, type Preset } from './model'
+import { applyPreset, newCard, newHitZoneItem, newId, type Preset } from './model'
 import { deleteCard, garbageCollectImages, imageIdsFromCards, listCards, onStorageWarning, requestPersistence, saveCard } from './storage'
 import { loadFonts } from './fonts'
 import { addImage } from './images'
@@ -227,14 +227,14 @@ export default function App() {
         const layer = { id: newId(), imageId, x: 0, y: 0, scale: 0.92, flip: false, rotation: 0 }
         if (purpose === 'portrait') {
           next.portrait = { ...c.portrait, layers: [...c.portrait.layers, layer] }
-          if (opts.alsoHitZone) next.hitZone = { ...c.hitZone, items: [...c.hitZone.items, { imageId }] }
+          if (opts.alsoHitZone) next.hitZone = { ...c.hitZone, items: [...c.hitZone.items, newHitZoneItem(imageId)] }
         } else {
           next.basicPortrait = { ...c.basicPortrait, sameAsMaster: false, layers: [...c.basicPortrait.layers, layer] }
         }
         setActiveLayer(layer.id)
         setTool('portrait')
       } else if (purpose === 'hitzone') {
-        next.hitZone = { ...c.hitZone, items: [...c.hitZone.items, { imageId }] }
+        next.hitZone = { ...c.hitZone, items: [...c.hitZone.items, newHitZoneItem(imageId)] }
         setTool('hitzone')
       } else if (purpose === 'backdrop') {
         next.portrait = { ...c.portrait, backdrop: { ...c.portrait.backdrop, kind: 'image', imageId } }
@@ -257,7 +257,7 @@ export default function App() {
   const hint = useMemo(() => {
     if (tool === 'portrait' && side === 'basic') return 'Basic side: drag the figure to place it here · scroll or pinch to resize · the Master side keeps its own placement'
     if (tool === 'portrait') return 'Drag the figure to move it · scroll or pinch to resize · use the sliders for fine control'
-    if (tool === 'hitzone') return 'Drag the silhouette to move it · drag the green dot to set the target point · scroll or pinch to resize'
+    if (tool === 'hitzone') return 'Drag the silhouettes to move them · drag any green dot to set that figure\'s target point · scroll or pinch to resize'
     return 'Tip: pick a Photo or Hit zone section to move things directly on the card'
   }, [tool, side])
 
@@ -436,10 +436,9 @@ async function makeDemoCard(): Promise<CardDesign> {
       const blob = await res.blob()
       const id = await addImage(blob)
       c.portrait.layers.push({ id: newId(), imageId: id, x: -8, y: 72, scale: 0.93, flip: false, rotation: 0 })
-      c.hitZone.items.push({ imageId: id })
+      c.hitZone.items.push(newHitZoneItem(id, { x: 0.47, y: 0.42, r: 4.5 }))
       c.hitZone.scale = 0.5
       c.hitZone.trimBottom = 0.1
-      c.hitZone.target = { x: 0.47, y: 0.42, r: 4.5 }
     }
   } catch {
     /* offline: fine */

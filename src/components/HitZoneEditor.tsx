@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CardDesign } from '../model'
+import type { CardDesign, HitZoneItem } from '../model'
+import { defaultTarget } from '../model'
 import type { Updater } from '../App'
 import { getSilhouetteSync, type Silhouette } from '../cutout/silhouette'
 import { addImage, canvasToBlob, getSync, loadImage, replaceImage } from '../images'
@@ -8,12 +9,15 @@ import { STAT_COLORS } from '../render/palette'
 type HzTool = 'gray' | 'erase' | 'target'
 
 /**
- * Paints the "cannot be targeted" grey areas onto the first silhouette and
- * positions the green Target Point. The paint mask lives in the silhouette's
- * (downscaled) source pixel grid so it survives re-thresholding.
+ * Paints the "cannot be targeted" grey areas onto a silhouette and positions
+ * its green Target Point. Squads: pick which figure to edit. The paint mask
+ * lives in the silhouette's (downscaled) source pixel grid so it survives
+ * re-thresholding.
  */
 export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; update: Updater; onClose: () => void }) {
-  const item = card.hitZone.items[0]
+  const items = card.hitZone.items
+  const [index, setIndex] = useState(0)
+  const item: HitZoneItem | undefined = items[Math.min(index, items.length - 1)]
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const maskRef = useRef<HTMLCanvasElement | null>(null)
   const [sil, setSil] = useState<Silhouette | undefined>(undefined)
@@ -24,13 +28,19 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
   const painting = useRef(false)
   const lastPt = useRef<{ x: number; y: number } | null>(null)
 
-  // load silhouette + existing paint
+  const patchItem = (i: number, patch: Partial<HitZoneItem>) =>
+    update((c) => ({ ...c, hitZone: { ...c.hitZone, items: c.hitZone.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) } }))
+
+  // load silhouette + existing paint for the selected figure
   useEffect(() => {
     if (!item) return
     let alive = true
+    setSil(undefined)
+    maskRef.current = null
+    setDirty(false)
     ;(async () => {
       await loadImage(item.imageId)
-      if (card.hitZone.paintImageId) await loadImage(card.hitZone.paintImageId)
+      if (item.paintImageId) await loadImage(item.paintImageId)
       if (!alive) return
       const s = getSilhouetteSync(item.imageId, card.hitZone.threshold)
       setSil(s)
@@ -38,7 +48,7 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
         const m = document.createElement('canvas')
         m.width = s.srcW
         m.height = s.srcH
-        const paint = getSync(card.hitZone.paintImageId)
+        const paint = getSync(item.paintImageId)
         if (paint) m.getContext('2d')!.drawImage(paint, 0, 0, s.srcW, s.srcH)
         maskRef.current = m
         setTick((t) => t + 1)
@@ -47,14 +57,15 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     return () => {
       alive = false
     }
-  }, [item, card.hitZone.threshold, card.hitZone.paintImageId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.imageId, item?.paintImageId, card.hitZone.threshold, index])
 
   // draw editor canvas
   useEffect(() => {
     const c = canvasRef.current
     if (!c || !sil) return
     const maxW = Math.min(520, window.innerWidth - 60)
-    const maxH = Math.min(520, window.innerHeight * 0.55)
+    const maxH = Math.min(520, window.innerHeight * 0.5)
     const s = Math.min(maxW / sil.canvas.width, maxH / sil.canvas.height)
     const dpr = Math.min(2, window.devicePixelRatio || 1)
     const w = Math.round(sil.canvas.width * s)
@@ -66,7 +77,6 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     const ctx = c.getContext('2d')!
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, w, h)
-    // red silhouette
     const red = document.createElement('canvas')
     red.width = sil.canvas.width
     red.height = sil.canvas.height
@@ -75,7 +85,6 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     rctx.globalCompositeOperation = 'source-in'
     rctx.fillStyle = STAT_COLORS.hitZoneRed
     rctx.fillRect(0, 0, red.width, red.height)
-    // grey paint, clipped to the silhouette
     if (maskRef.current) {
       rctx.globalCompositeOperation = 'source-atop'
       const g = document.createElement('canvas')
@@ -89,14 +98,12 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
       rctx.drawImage(g, 0, 0)
     }
     ctx.drawImage(red, 0, 0, w, h)
-    // trimmed region
     const trim = card.hitZone.trimBottom
     if (trim > 0) {
       ctx.fillStyle = 'rgba(0,0,0,0.6)'
       ctx.fillRect(0, h * (1 - trim), w, h * trim)
     }
-    // target
-    const t = card.hitZone.target
+    const t = item?.target
     if (t) {
       const tx = w * t.x
       const ty = h * (t.y * (1 - trim))
@@ -108,14 +115,12 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
       ctx.strokeStyle = 'rgba(0,0,0,0.7)'
       ctx.stroke()
     }
-  }, [sil, tick, card.hitZone.target, card.hitZone.trimBottom])
+  }, [sil, tick, item?.target, card.hitZone.trimBottom])
 
   const toMask = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const c = canvasRef.current!
     const r = c.getBoundingClientRect()
-    const fx = (e.clientX - r.left) / r.width
-    const fy = (e.clientY - r.top) / r.height
-    return { fx, fy }
+    return { fx: (e.clientX - r.left) / r.width, fy: (e.clientY - r.top) / r.height }
   }
 
   const paintAt = (fx: number, fy: number) => {
@@ -142,6 +147,12 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     lastPt.current = { x, y }
   }
 
+  const placeTarget = (fx: number, fy: number) => {
+    if (!item) return
+    const trim = card.hitZone.trimBottom
+    patchItem(index, { target: { r: item.target?.r ?? defaultTarget().r, x: clamp01(fx), y: clamp01(fy / Math.max(0.05, 1 - trim)) } })
+  }
+
   const onDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { fx, fy } = toMask(e)
     try {
@@ -149,13 +160,11 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     } catch {
       /* synthetic events have no active pointer */
     }
+    painting.current = true
     if (tool === 'target') {
-      const trim = card.hitZone.trimBottom
-      update((c) => ({ ...c, hitZone: { ...c.hitZone, target: { r: c.hitZone.target?.r ?? 4.5, x: clamp01(fx), y: clamp01(fy / Math.max(0.05, 1 - trim)) } } }))
-      painting.current = true
+      placeTarget(fx, fy)
       return
     }
-    painting.current = true
     lastPt.current = null
     paintAt(fx, fy)
     setTick((t) => t + 1)
@@ -165,8 +174,7 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     if (!painting.current) return
     const { fx, fy } = toMask(e)
     if (tool === 'target') {
-      const trim = card.hitZone.trimBottom
-      update((c) => ({ ...c, hitZone: { ...c.hitZone, target: { r: c.hitZone.target?.r ?? 4.5, x: clamp01(fx), y: clamp01(fy / Math.max(0.05, 1 - trim)) } } }))
+      placeTarget(fx, fy)
       return
     }
     paintAt(fx, fy)
@@ -177,19 +185,28 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     lastPt.current = null
   }
 
-  const save = async () => {
-    if (!maskRef.current) return onClose()
-    if (dirty) {
-      const blob = await canvasToBlob(maskRef.current, 'image/png')
-      if (card.hitZone.paintImageId) {
-        await replaceImage(card.hitZone.paintImageId, blob)
-        update((c) => ({ ...c })) // trigger redraw
-      } else {
-        const id = await addImage(blob)
-        update((c) => ({ ...c, hitZone: { ...c.hitZone, paintImageId: id } }))
-      }
+  /** Persist the paint mask of the current figure. */
+  const savePaint = async () => {
+    if (!maskRef.current || !dirty || !item) return
+    const blob = await canvasToBlob(maskRef.current, 'image/png')
+    if (item.paintImageId) {
+      await replaceImage(item.paintImageId, blob)
+      update((c) => ({ ...c }))
+    } else {
+      const id = await addImage(blob)
+      patchItem(index, { paintImageId: id })
     }
+    setDirty(false)
+  }
+
+  const done = async () => {
+    await savePaint()
     onClose()
+  }
+
+  const switchTo = async (i: number) => {
+    await savePaint()
+    setIndex(i)
   }
 
   const clearPaint = () => {
@@ -199,12 +216,31 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     setTick((t) => t + 1)
   }
 
+  const copyToAll = async () => {
+    // same grey paint and target for every figure that uses this cutout
+    if (!item) return
+    await savePaint()
+    update((c) => {
+      const src = c.hitZone.items[index]
+      if (!src) return c
+      return {
+        ...c,
+        hitZone: {
+          ...c.hitZone,
+          items: c.hitZone.items.map((it, j) =>
+            j !== index && it.imageId === src.imageId ? { ...it, paintImageId: src.paintImageId, target: src.target ? { ...src.target } : null } : it,
+          ),
+        },
+      }
+    })
+  }
+
   return (
-    <div className="modalBack" onClick={save}>
+    <div className="modalBack" onClick={done}>
       <div className="modal" style={{ width: 'min(700px,100%)' }} onClick={(e) => e.stopPropagation()}>
         <header>
-          <h2>Hit zone</h2>
-          <button className="btn small" onClick={save}>
+          <h2>Hit zone{items.length > 1 ? ` · figure ${index + 1} of ${items.length}` : ''}</h2>
+          <button className="btn small" onClick={done}>
             Done
           </button>
         </header>
@@ -213,6 +249,21 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
             <p>Add a figure cutout first.</p>
           ) : (
             <>
+              {items.length > 1 && (
+                <div className="row">
+                  <span className="muted tiny">Figure:</span>
+                  <div className="seg">
+                    {items.map((_, i) => (
+                      <button key={i} className={i === index ? 'on' : ''} onClick={() => void switchTo(i)}>
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                  <button className="btn small" onClick={() => void copyToAll()} title="Apply this figure's grey paint and dot to the other silhouettes made from the same cutout">
+                    Copy to matching figures
+                  </button>
+                </div>
+              )}
               <div className="hzTools">
                 <div className="seg">
                   <button className={tool === 'gray' ? 'on' : ''} onClick={() => setTool('gray')}>
@@ -234,12 +285,20 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
                 <button className="btn small" onClick={clearPaint}>
                   Clear grey
                 </button>
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={!!item.target}
+                    onChange={(e) => patchItem(index, { target: e.target.checked ? defaultTarget() : null })}
+                  />
+                  Dot
+                </label>
               </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <canvas ref={canvasRef} className="hzCanvas" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
               </div>
               <p className="muted tiny" style={{ margin: 0 }}>
-                On official cards the whole figure is red except wings, weapons, capes and mounts' wings, which are grey. The green Target Point normally sits on the head.
+                On official cards the whole figure is red except wings, weapons, capes and mounts' wings, which are grey. Each figure's green Target Point normally sits on the head.
               </p>
             </>
           )}
