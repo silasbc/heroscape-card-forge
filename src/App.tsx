@@ -257,7 +257,7 @@ export default function App() {
   const hint = useMemo(() => {
     if (tool === 'portrait' && side === 'basic') return 'Basic side: drag the figure to place it here · scroll or pinch to resize · the Master side keeps its own placement'
     if (tool === 'portrait') return 'Drag the figure to move it · scroll or pinch to resize · use the sliders for fine control'
-    if (tool === 'hitzone') return 'Drag the silhouettes to move them · drag any green dot to set that figure\'s target point · scroll or pinch to resize'
+    if (tool === 'hitzone') return 'Drag the silhouettes to move them · drag any green dot to move it (add more in the painter) · scroll or pinch to resize'
     return 'Tip: pick a Photo or Hit zone section to move things directly on the card'
   }, [tool, side])
 
@@ -436,7 +436,7 @@ async function makeDemoCard(): Promise<CardDesign> {
       const blob = await res.blob()
       const id = await addImage(blob)
       c.portrait.layers.push({ id: newId(), imageId: id, x: -8, y: 72, scale: 0.93, flip: false, rotation: 0 })
-      c.hitZone.items.push(newHitZoneItem(id, { x: 0.47, y: 0.42, r: 4.5 }))
+      c.hitZone.items.push(newHitZoneItem(id, [{ x: 0.47, y: 0.42, r: 4.5 }]))
       c.hitZone.scale = 0.5
       c.hitZone.trimBottom = 0.1
     }

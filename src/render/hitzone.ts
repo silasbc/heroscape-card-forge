@@ -80,8 +80,7 @@ export function drawSilhouettes(ctx: CanvasRenderingContext2D, d: CardDesign, en
       }
     }
     ctx.restore()
-    if (item?.target) {
-      const t = item.target
+    for (const t of item?.targets ?? []) {
       const tx = d.hitZone.flip ? slot.x + slot.w * (1 - t.x) : slot.x + slot.w * t.x
       const ty = slot.y + slot.h * t.y
       const r = t.r * (hz.h / 304)

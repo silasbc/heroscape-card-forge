@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CardDesign, HitZoneItem } from '../model'
+import type { CardDesign, HitZoneItem, TargetPoint } from '../model'
 import { defaultTarget } from '../model'
 import type { Updater } from '../App'
 import { getSilhouetteSync, type Silhouette } from '../cutout/silhouette'
 import { addImage, canvasToBlob, getSync, loadImage, replaceImage } from '../images'
 import { STAT_COLORS } from '../render/palette'
 
-type HzTool = 'gray' | 'erase' | 'target'
+type HzTool = 'gray' | 'erase' | 'dot' | 'removeDot'
 
 /**
- * Paints the "cannot be targeted" grey areas onto a silhouette and positions
- * its green Target Point. Squads: pick which figure to edit. The paint mask
- * lives in the silhouette's (downscaled) source pixel grid so it survives
- * re-thresholding.
+ * Paints the "cannot be targeted" grey areas onto a silhouette and places its
+ * green Target Points. A silhouette may carry several dots (one per figure it
+ * shows, e.g. a whole squad in one cutout). Squads with one silhouette per
+ * figure pick which figure to edit. The paint mask lives in the silhouette's
+ * (downscaled) source pixel grid so it survives re-thresholding.
  */
 export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; update: Updater; onClose: () => void }) {
   const items = card.hitZone.items
@@ -21,15 +22,18 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const maskRef = useRef<HTMLCanvasElement | null>(null)
   const [sil, setSil] = useState<Silhouette | undefined>(undefined)
-  const [tool, setTool] = useState<HzTool>('gray')
+  const [tool, setTool] = useState<HzTool>('dot')
   const [brush, setBrush] = useState(18)
   const [dirty, setDirty] = useState(false)
   const [tick, setTick] = useState(0)
   const painting = useRef(false)
   const lastPt = useRef<{ x: number; y: number } | null>(null)
+  const dragDot = useRef<number | null>(null)
 
   const patchItem = (i: number, patch: Partial<HitZoneItem>) =>
     update((c) => ({ ...c, hitZone: { ...c.hitZone, items: c.hitZone.items.map((it, j) => (j === i ? { ...it, ...patch } : it)) } }))
+  const setTargets = (fn: (t: TargetPoint[]) => TargetPoint[]) =>
+    update((c) => ({ ...c, hitZone: { ...c.hitZone, items: c.hitZone.items.map((it, j) => (j === index ? { ...it, targets: fn(it.targets) } : it)) } }))
 
   // load silhouette + existing paint for the selected figure
   useEffect(() => {
@@ -59,6 +63,9 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.imageId, item?.paintImageId, card.hitZone.threshold, index])
+
+  const trim = card.hitZone.trimBottom
+  const dotRadiusPx = (h: number, t: TargetPoint) => Math.max(5, (t.r / 304) * h * 2.2)
 
   // draw editor canvas
   useEffect(() => {
@@ -98,29 +105,40 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
       rctx.drawImage(g, 0, 0)
     }
     ctx.drawImage(red, 0, 0, w, h)
-    const trim = card.hitZone.trimBottom
     if (trim > 0) {
       ctx.fillStyle = 'rgba(0,0,0,0.6)'
       ctx.fillRect(0, h * (1 - trim), w, h * trim)
     }
-    const t = item?.target
-    if (t) {
+    for (const t of item?.targets ?? []) {
       const tx = w * t.x
       const ty = h * (t.y * (1 - trim))
       ctx.beginPath()
-      ctx.arc(tx, ty, Math.max(5, (t.r / 304) * h * 2.2), 0, Math.PI * 2)
+      ctx.arc(tx, ty, dotRadiusPx(h, t), 0, Math.PI * 2)
       ctx.fillStyle = STAT_COLORS.target
       ctx.fill()
       ctx.lineWidth = 1.5
       ctx.strokeStyle = 'rgba(0,0,0,0.7)'
       ctx.stroke()
     }
-  }, [sil, tick, item?.target, card.hitZone.trimBottom])
+  }, [sil, tick, item?.targets, trim])
 
-  const toMask = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const toFrac = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const c = canvasRef.current!
     const r = c.getBoundingClientRect()
-    return { fx: (e.clientX - r.left) / r.width, fy: (e.clientY - r.top) / r.height }
+    return { fx: (e.clientX - r.left) / r.width, fy: (e.clientY - r.top) / r.height, w: r.width, h: r.height }
+  }
+
+  /** index of the dot under the pointer, or -1 */
+  const dotAt = (fx: number, fy: number, w: number, h: number) => {
+    const targets = item?.targets ?? []
+    for (let k = targets.length - 1; k >= 0; k--) {
+      const t = targets[k]
+      const tx = w * t.x
+      const ty = h * (t.y * (1 - trim))
+      const r = Math.max(dotRadiusPx(h, t) * 1.8, 14)
+      if (Math.hypot(fx * w - tx, fy * h - ty) <= r) return k
+    }
+    return -1
   }
 
   const paintAt = (fx: number, fy: number) => {
@@ -147,24 +165,36 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
     lastPt.current = { x, y }
   }
 
-  const placeTarget = (fx: number, fy: number) => {
-    if (!item) return
-    const trim = card.hitZone.trimBottom
-    patchItem(index, { target: { r: item.target?.r ?? defaultTarget().r, x: clamp01(fx), y: clamp01(fy / Math.max(0.05, 1 - trim)) } })
-  }
+  const moveDot = (k: number, fx: number, fy: number) =>
+    setTargets((ts) => ts.map((t, i) => (i === k ? { ...t, x: clamp01(fx), y: clamp01(fy / Math.max(0.05, 1 - trim)) } : t)))
 
   const onDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const { fx, fy } = toMask(e)
+    const { fx, fy, w, h } = toFrac(e)
     try {
       canvasRef.current!.setPointerCapture(e.pointerId)
     } catch {
       /* synthetic events have no active pointer */
     }
-    painting.current = true
-    if (tool === 'target') {
-      placeTarget(fx, fy)
+    if (tool === 'dot') {
+      const k = dotAt(fx, fy, w, h)
+      if (k >= 0) {
+        dragDot.current = k
+        painting.current = true
+      } else {
+        // new dot where you tapped
+        const r = item?.targets[0]?.r ?? defaultTarget().r
+        setTargets((ts) => [...ts, { r, x: clamp01(fx), y: clamp01(fy / Math.max(0.05, 1 - trim)) }])
+        dragDot.current = (item?.targets.length ?? 0)
+        painting.current = true
+      }
       return
     }
+    if (tool === 'removeDot') {
+      const k = dotAt(fx, fy, w, h)
+      if (k >= 0) setTargets((ts) => ts.filter((_, i) => i !== k))
+      return
+    }
+    painting.current = true
     lastPt.current = null
     paintAt(fx, fy)
     setTick((t) => t + 1)
@@ -172,17 +202,19 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
   }
   const onMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!painting.current) return
-    const { fx, fy } = toMask(e)
-    if (tool === 'target') {
-      placeTarget(fx, fy)
+    const { fx, fy } = toFrac(e)
+    if (tool === 'dot') {
+      if (dragDot.current !== null) moveDot(dragDot.current, fx, fy)
       return
     }
+    if (tool === 'removeDot') return
     paintAt(fx, fy)
     setTick((t) => t + 1)
   }
   const onUp = () => {
     painting.current = false
     lastPt.current = null
+    dragDot.current = null
   }
 
   /** Persist the paint mask of the current figure. */
@@ -217,7 +249,6 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
   }
 
   const copyToAll = async () => {
-    // same grey paint and target for every figure that uses this cutout
     if (!item) return
     await savePaint()
     update((c) => {
@@ -228,12 +259,14 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
         hitZone: {
           ...c.hitZone,
           items: c.hitZone.items.map((it, j) =>
-            j !== index && it.imageId === src.imageId ? { ...it, paintImageId: src.paintImageId, target: src.target ? { ...src.target } : null } : it,
+            j !== index && it.imageId === src.imageId ? { ...it, paintImageId: src.paintImageId, targets: src.targets.map((t) => ({ ...t })) } : it,
           ),
         },
       }
     })
   }
+
+  const dots = item?.targets.length ?? 0
 
   return (
     <div className="modalBack" onClick={done}>
@@ -251,7 +284,7 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
             <>
               {items.length > 1 && (
                 <div className="row">
-                  <span className="muted tiny">Figure:</span>
+                  <span className="muted tiny">Silhouette:</span>
                   <div className="seg">
                     {items.map((_, i) => (
                       <button key={i} className={i === index ? 'on' : ''} onClick={() => void switchTo(i)}>
@@ -259,46 +292,57 @@ export function HitZoneEditor({ card, update, onClose }: { card: CardDesign; upd
                       </button>
                     ))}
                   </div>
-                  <button className="btn small" onClick={() => void copyToAll()} title="Apply this figure's grey paint and dot to the other silhouettes made from the same cutout">
-                    Copy to matching figures
+                  <button className="btn small" onClick={() => void copyToAll()} title="Apply this silhouette's grey paint and dots to the others made from the same cutout">
+                    Copy to matching silhouettes
                   </button>
                 </div>
               )}
               <div className="hzTools">
                 <div className="seg">
+                  <button className={tool === 'dot' ? 'on' : ''} onClick={() => setTool('dot')}>
+                    Dots: tap to add, drag to move
+                  </button>
+                  <button className={tool === 'removeDot' ? 'on' : ''} onClick={() => setTool('removeDot')}>
+                    Remove a dot
+                  </button>
                   <button className={tool === 'gray' ? 'on' : ''} onClick={() => setTool('gray')}>
-                    Paint grey (not targetable)
+                    Paint grey
                   </button>
                   <button className={tool === 'erase' ? 'on' : ''} onClick={() => setTool('erase')}>
-                    Erase (back to red)
-                  </button>
-                  <button className={tool === 'target' ? 'on' : ''} onClick={() => setTool('target')}>
-                    Place target dot
+                    Erase grey
                   </button>
                 </div>
-                <label className="field" style={{ width: 160 }}>
-                  <span>
-                    Brush <b>{brush}</b>
-                  </span>
-                  <input type="range" min={4} max={60} value={brush} onChange={(e) => setBrush(Number(e.target.value))} />
-                </label>
-                <button className="btn small" onClick={clearPaint}>
-                  Clear grey
-                </button>
-                <label className="check">
-                  <input
-                    type="checkbox"
-                    checked={!!item.target}
-                    onChange={(e) => patchItem(index, { target: e.target.checked ? defaultTarget() : null })}
-                  />
-                  Dot
-                </label>
+                {(tool === 'gray' || tool === 'erase') && (
+                  <>
+                    <label className="field" style={{ width: 160 }}>
+                      <span>
+                        Brush <b>{brush}</b>
+                      </span>
+                      <input type="range" min={4} max={60} value={brush} onChange={(e) => setBrush(Number(e.target.value))} />
+                    </label>
+                    <button className="btn small" onClick={clearPaint}>
+                      Clear grey
+                    </button>
+                  </>
+                )}
+                {(tool === 'dot' || tool === 'removeDot') && (
+                  <>
+                    <span className="muted tiny">
+                      {dots} dot{dots === 1 ? '' : 's'}
+                    </span>
+                    {dots > 0 && (
+                      <button className="btn small" onClick={() => setTargets(() => [])}>
+                        Remove all dots
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <canvas ref={canvasRef} className="hzCanvas" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} />
               </div>
               <p className="muted tiny" style={{ margin: 0 }}>
-                On official cards the whole figure is red except wings, weapons, capes and mounts' wings, which are grey. Each figure's green Target Point normally sits on the head.
+                Put one green dot on each figure's head. Grey marks parts that cannot be targeted, like wings, weapons and capes. Everything else stays red as the hit zone.
               </p>
             </>
           )}

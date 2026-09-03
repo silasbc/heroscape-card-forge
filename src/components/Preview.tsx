@@ -27,6 +27,7 @@ interface DragState {
   startDist: number
   slot?: { x: number; y: number; w: number; h: number }
   itemIndex?: number
+  dotIndex?: number
 }
 
 export function Preview({ card, side, tool, activeLayer, update }: Props) {
@@ -122,15 +123,18 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
       if (side === 'master') {
         for (let i = 0; i < slots.length; i++) {
           const slot = slots[i]
-          const t = card.hitZone.items[i]?.target
-          if (!slot || !t) continue
-          const tx = card.hitZone.flip ? slot.x + slot.w * (1 - t.x) : slot.x + slot.w * t.x
-          const ty = slot.y + slot.h * t.y
-          const r = Math.max(t.r * (hz.h / 304) * 2.2, 12 * p.upp)
-          if (Math.hypot(p.x - tx, p.y - ty) <= r) {
-            drag.current = { kind: 'target', startX: p.x, startY: p.y, origX: t.x, origY: t.y, origScale: t.r, pointers, startDist: 0, slot, itemIndex: i }
-            setDragging(true)
-            return
+          const targets = card.hitZone.items[i]?.targets ?? []
+          if (!slot) continue
+          for (let k = 0; k < targets.length; k++) {
+            const t = targets[k]
+            const tx = card.hitZone.flip ? slot.x + slot.w * (1 - t.x) : slot.x + slot.w * t.x
+            const ty = slot.y + slot.h * t.y
+            const r = Math.max(t.r * (hz.h / 304) * 2.2, 12 * p.upp)
+            if (Math.hypot(p.x - tx, p.y - ty) <= r) {
+              drag.current = { kind: 'target', startX: p.x, startY: p.y, origX: t.x, origY: t.y, origScale: t.r, pointers, startDist: 0, slot, itemIndex: i, dotIndex: k }
+              setDragging(true)
+              return
+            }
           }
         }
       }
@@ -201,12 +205,15 @@ export function Preview({ card, side, tool, activeLayer, update }: Props) {
     } else if (d.kind === 'target' && d.slot) {
       const slot = d.slot
       const idx = d.itemIndex ?? 0
+      const dot = d.dotIndex ?? 0
       let fx = (p.x - slot.x) / slot.w
       const fy = (p.y - slot.y) / slot.h
       if (card.hitZone.flip) fx = 1 - fx
       update((c) => {
         const items = c.hitZone.items.map((it, i) =>
-          i === idx ? { ...it, target: { r: it.target?.r ?? 4.5, x: Math.min(1, Math.max(0, fx)), y: Math.min(1, Math.max(0, fy)) } } : it,
+          i === idx
+            ? { ...it, targets: it.targets.map((t, k) => (k === dot ? { ...t, x: Math.min(1, Math.max(0, fx)), y: Math.min(1, Math.max(0, fy)) } : t)) }
+            : it,
         )
         return { ...c, hitZone: { ...c.hitZone, items } }
       })

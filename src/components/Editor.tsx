@@ -449,10 +449,18 @@ function HitZoneSection(p: Props) {
   const figures = card.portrait.layers
   const squad = isSquad(card)
   const wanted = squad ? Math.max(1, card.figuresInSquad) : 1
-  const anyTarget = hz.items.some((it) => it.target)
-  const dotSize = hz.items.find((it) => it.target)?.target?.r ?? 4.5
-  const setAllTargets = (on: boolean) => setHz({ items: hz.items.map((it) => ({ ...it, target: on ? { ...(it.target ?? defaultTarget()), r: dotSize } : null })) })
-  const setDotSize = (r: number) => setHz({ items: hz.items.map((it) => ({ ...it, target: it.target ? { ...it.target, r } : it.target })) })
+  const dotCount = hz.items.reduce((a, it) => a + it.targets.length, 0)
+  const dotSize = hz.items.find((it) => it.targets.length)?.targets[0]?.r ?? 4.5
+  const addDot = () =>
+    setHz({
+      items: hz.items.map((it, i) => {
+        if (i !== 0) return it
+        const n = it.targets.length
+        return { ...it, targets: [...it.targets, { ...defaultTarget(), r: dotSize, x: Math.min(0.9, 0.3 + n * 0.2), y: 0.12 + (n % 2) * 0.1 }] }
+      }),
+    })
+  const clearDots = () => setHz({ items: hz.items.map((it) => ({ ...it, targets: [] })) })
+  const setDotSize = (r: number) => setHz({ items: hz.items.map((it) => ({ ...it, targets: it.targets.map((t) => ({ ...t, r })) })) })
   const matchSquad = () => {
     if (!hz.items.length) return
     const items = hz.items.slice(0, wanted)
@@ -463,7 +471,7 @@ function HitZoneSection(p: Props) {
     <>
       <p className="muted tiny" style={{ margin: 0 }}>
         The black box shows each figure's silhouette: <b style={{ color: '#ff5a5a' }}>red</b> is the hit zone, <b style={{ color: '#bbb' }}>grey</b> parts cannot be targeted (wings, weapons),
-        and each <b style={{ color: '#7ac143' }}>green dot</b> is that figure's Target Point that line of sight is measured from. Squads show one silhouette and one dot per figure.
+        and each <b style={{ color: '#7ac143' }}>green dot</b> is a Target Point that line of sight is measured from. Squads need one dot per figure, whether you use one silhouette per figure or one cutout of the whole group.
       </p>
       <div className="row">
         {figures.length > 0 && (
@@ -494,12 +502,16 @@ function HitZoneSection(p: Props) {
           )}
           <div className="row">
             <button className="btn primary" onClick={p.openHitZone}>
-              Paint grey parts & set target dots…
+              Paint grey parts & place dots…
             </button>
-            <label className="check">
-              <input type="checkbox" checked={anyTarget} onChange={(e) => setAllTargets(e.target.checked)} />
-              Show target dot{hz.items.length > 1 ? 's' : ''}
-            </label>
+            <button className="btn" onClick={addDot} title="Add another green target dot to the first silhouette (one per figure it shows)">
+              + Dot ({dotCount})
+            </button>
+            {dotCount > 0 && (
+              <button className="btn small" onClick={clearDots}>
+                Remove dots
+              </button>
+            )}
             <label className="check">
               <input type="checkbox" checked={hz.flip} onChange={(e) => setHz({ flip: e.target.checked })} />
               Flip
@@ -548,14 +560,14 @@ function HitZoneSection(p: Props) {
               <span>
                 Target dot size <b>{dotSize}</b>
               </span>
-              <input type="range" min={2} max={10} step={0.5} value={dotSize} disabled={!anyTarget} onChange={(e) => setDotSize(Number(e.target.value))} />
+              <input type="range" min={2} max={10} step={0.5} value={dotSize} disabled={!dotCount} onChange={(e) => setDotSize(Number(e.target.value))} />
             </label>
           </div>
           <div className="row">
             <button className="btn small" onClick={() => setHz({ x: 0, y: 0 })}>
               Centre
             </button>
-            {hz.items.length > 1 && <span className="muted tiny">Silhouettes are laid out in a grid like the official squad cards. Drag any green dot on the card to move it.</span>}
+            <span className="muted tiny">Drag any green dot on the card to move it. Add or remove dots in the painter, or with the + Dot button.</span>
           </div>
         </>
       )}

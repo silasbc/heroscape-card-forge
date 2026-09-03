@@ -100,8 +100,8 @@ export interface TargetPoint {
 
 export interface HitZoneItem {
   imageId: string
-  /** green line-of-sight target point for this figure (null = hidden) */
-  target: TargetPoint | null
+  /** green line-of-sight target points on this silhouette (one per figure it shows) */
+  targets: TargetPoint[]
   /** painted "cannot be targeted" (grey) mask in this silhouette's source pixel grid */
   paintImageId?: string
 }
@@ -174,8 +174,8 @@ export function defaultTarget(): TargetPoint {
   return { x: 0.5, y: 0.12, r: 4.5 }
 }
 
-export function newHitZoneItem(imageId: string, target: TargetPoint | null = defaultTarget()): HitZoneItem {
-  return { imageId, target: target ? { ...target } : null }
+export function newHitZoneItem(imageId: string, targets: TargetPoint[] = [defaultTarget()]): HitZoneItem {
+  return { imageId, targets: targets.map((t) => ({ ...t })) }
 }
 
 export function defaultHitZone(): HitZone {
@@ -282,23 +282,21 @@ export function normalizeCard(raw: unknown): CardDesign {
   const r = (raw ?? {}) as Partial<CardDesign> & Record<string, unknown>
   const hz = (r.hitZone ?? {}) as Partial<HitZone> & { imageId?: string; mode?: string; dots?: unknown }
   const legacyTarget: TargetPoint | null = hz.target === null ? null : { ...defaultTarget(), ...(hz.target ?? {}) }
-  const rawItems: Partial<HitZoneItem>[] = Array.isArray(hz.items)
-    ? hz.items.filter((i) => i && i.imageId)
+  type RawItem = Partial<HitZoneItem> & { target?: TargetPoint | null }
+  const rawItems: RawItem[] = Array.isArray(hz.items)
+    ? (hz.items as RawItem[]).filter((i) => i && i.imageId)
     : hz.imageId
       ? [{ imageId: String(hz.imageId) }]
       : []
-  const items: HitZoneItem[] = rawItems.map((i, idx) => ({
-    imageId: String(i.imageId),
-    target:
-      i.target === null
-        ? null
-        : i.target
-          ? { ...defaultTarget(), ...i.target }
-          : idx === 0
-            ? legacyTarget
-            : defaultTarget(),
-    paintImageId: i.paintImageId ?? (idx === 0 ? hz.paintImageId : undefined),
-  }))
+  const items: HitZoneItem[] = rawItems.map((i, idx) => {
+    let targets: TargetPoint[]
+    if (Array.isArray(i.targets)) targets = i.targets.map((t) => ({ ...defaultTarget(), ...t }))
+    else if (i.target === null) targets = []
+    else if (i.target) targets = [{ ...defaultTarget(), ...i.target }]
+    else if (idx === 0) targets = legacyTarget ? [legacyTarget] : []
+    else targets = [defaultTarget()]
+    return { imageId: String(i.imageId), targets, paintImageId: i.paintImageId ?? (idx === 0 ? hz.paintImageId : undefined) }
+  })
   const d: CardDesign = {
     ...base,
     ...r,
